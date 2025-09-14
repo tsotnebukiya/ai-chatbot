@@ -65,12 +65,18 @@ export function getStreamContext() {
 }
 
 export async function POST(request: Request) {
+  const startTime = performance.now();
+  console.log('🚀 Chat API POST request started');
+
   let requestBody: PostRequestBody;
 
   try {
+    const parseStart = performance.now();
     const json = await request.json();
     requestBody = postRequestBodySchema.parse(json);
+    console.log(`📝 Request parsing: ${(performance.now() - parseStart).toFixed(2)}ms`);
   } catch (_) {
+    console.log('❌ Request parsing failed');
     return new ChatSDKError('bad_request:api').toResponse();
   }
 
@@ -87,46 +93,68 @@ export async function POST(request: Request) {
       selectedVisibilityType: VisibilityType;
     } = requestBody;
 
+    console.log(`🎯 Processing chat: ${id}, model: ${selectedChatModel}`);
+
+    const authStart = performance.now();
     const session = await auth();
+    console.log(`🔐 Authentication: ${(performance.now() - authStart).toFixed(2)}ms`);
 
     if (!session?.user) {
+      console.log('❌ No user session found');
       return new ChatSDKError('unauthorized:chat').toResponse();
     }
 
     const userType: UserType = session.user.type;
 
+    const rateLimitStart = performance.now();
     const messageCount = await getMessageCountByUserId({
       id: session.user.id,
       differenceInHours: 24,
     });
+    console.log(`📊 Rate limit check: ${(performance.now() - rateLimitStart).toFixed(2)}ms`);
 
     if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
+      console.log('🚫 Rate limit exceeded');
       return new ChatSDKError('rate_limit:chat').toResponse();
     }
 
+    const chatRetrievalStart = performance.now();
     const chat = await getChatById({ id });
+    console.log(`🗃️ Chat retrieval: ${(performance.now() - chatRetrievalStart).toFixed(2)}ms`);
 
     if (!chat) {
+      const titleStart = performance.now();
       const title = await generateTitleFromUserMessage({
         message,
       });
+      console.log(`📝 Title generation: ${(performance.now() - titleStart).toFixed(2)}ms`);
 
+      const saveChatStart = performance.now();
       await saveChat({
         id,
         userId: session.user.id,
         title,
         visibility: selectedVisibilityType,
       });
+      console.log(`💾 Chat creation: ${(performance.now() - saveChatStart).toFixed(2)}ms`);
     } else {
       if (chat.userId !== session.user.id) {
+        console.log('❌ User not authorized for this chat');
         return new ChatSDKError('forbidden:chat').toResponse();
       }
     }
 
+    const messageHistoryStart = performance.now();
     const messagesFromDb = await getMessagesByChatId({ id });
-    const uiMessages = [...convertToUIMessages(messagesFromDb), message];
+    console.log(`📜 Message history retrieval: ${(performance.now() - messageHistoryStart).toFixed(2)}ms, ${messagesFromDb.length} messages`);
 
+    const messageProcessingStart = performance.now();
+    const uiMessages = [...convertToUIMessages(messagesFromDb), message];
+    console.log(`🔄 Message processing: ${(performance.now() - messageProcessingStart).toFixed(2)}ms`);
+
+    const geoStart = performance.now();
     const { longitude, latitude, city, country } = geolocation(request);
+    console.log(`🌍 Geolocation: ${(performance.now() - geoStart).toFixed(2)}ms`);
 
     const requestHints: RequestHints = {
       longitude,
@@ -135,6 +163,7 @@ export async function POST(request: Request) {
       country,
     };
 
+    const saveMessageStart = performance.now();
     await saveMessages({
       messages: [
         {
@@ -147,14 +176,21 @@ export async function POST(request: Request) {
         },
       ],
     });
+    console.log(`💾 User message save: ${(performance.now() - saveMessageStart).toFixed(2)}ms`);
 
+    const streamSetupStart = performance.now();
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
+    console.log(`🔄 Stream setup: ${(performance.now() - streamSetupStart).toFixed(2)}ms`);
 
     let finalUsage: LanguageModelUsage | undefined;
 
+    const aiResponseStart = performance.now();
+    console.log(`🤖 Starting AI response generation with model: ${selectedChatModel}`);
+
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
+        const streamTextStart = performance.now();
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints }),
@@ -186,6 +222,7 @@ export async function POST(request: Request) {
           onFinish: ({ usage }) => {
             finalUsage = usage;
             dataStream.write({ type: 'data-usage', data: usage });
+            console.log(`📊 AI usage: ${JSON.stringify(usage)}`);
           },
         });
 
@@ -196,9 +233,11 @@ export async function POST(request: Request) {
             sendReasoning: true,
           }),
         );
+        console.log(`🤖 StreamText execution: ${(performance.now() - streamTextStart).toFixed(2)}ms`);
       },
       generateId: generateUUID,
       onFinish: async ({ messages }) => {
+        const saveAssistantStart = performance.now();
         await saveMessages({
           messages: messages.map((message) => ({
             id: message.id,
@@ -209,13 +248,16 @@ export async function POST(request: Request) {
             chatId: id,
           })),
         });
+        console.log(`💾 Assistant message save: ${(performance.now() - saveAssistantStart).toFixed(2)}ms`);
 
         if (finalUsage) {
           try {
+            const usagePersistStart = performance.now();
             await updateChatLastContextById({
               chatId: id,
               context: finalUsage,
             });
+            console.log(`💾 Usage persistence: ${(performance.now() - usagePersistStart).toFixed(2)}ms`);
           } catch (err) {
             console.warn('Unable to persist last usage for chat', id, err);
           }
@@ -225,19 +267,38 @@ export async function POST(request: Request) {
         return 'Oops, an error occurred!';
       },
     });
+    console.log(`🤖 AI response generation setup: ${(performance.now() - aiResponseStart).toFixed(2)}ms`);
 
+    const responseStart = performance.now();
     const streamContext = getStreamContext();
 
+    let response: Response;
     if (streamContext) {
-      return new Response(
+      response = new Response(
         await streamContext.resumableStream(streamId, () =>
           stream.pipeThrough(new JsonToSseTransformStream()),
         ),
       );
     } else {
-      return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
+      response = new Response(stream.pipeThrough(new JsonToSseTransformStream()));
     }
+
+    const totalTime = performance.now() - startTime;
+    console.log(`📤 Response streaming: ${(performance.now() - responseStart).toFixed(2)}ms`);
+    console.log(`✅ Total request time: ${totalTime.toFixed(2)}ms`);
+    console.log('=== Chat API Performance Summary ===');
+    console.log(`Chat ID: ${id}`);
+    console.log(`Model: ${selectedChatModel}`);
+    console.log(`Messages in history: ${messagesFromDb.length}`);
+    console.log(`Total duration: ${totalTime.toFixed(2)}ms`);
+    console.log('====================================');
+
+    return response;
   } catch (error) {
+    const errorTime = performance.now() - startTime;
+    console.log(`❌ Error occurred after: ${errorTime.toFixed(2)}ms`);
+    console.error('Unhandled error in chat API:', error);
+
     if (error instanceof ChatSDKError) {
       return error.toResponse();
     }
@@ -249,35 +310,58 @@ export async function POST(request: Request) {
         'AI Gateway requires a valid credit card on file to service requests',
       )
     ) {
+      console.log('❌ AI Gateway credit card error');
       return new ChatSDKError('bad_request:activate_gateway').toResponse();
     }
 
-    console.error('Unhandled error in chat API:', error);
     return new ChatSDKError('offline:chat').toResponse();
   }
 }
 
 export async function DELETE(request: Request) {
+  const startTime = performance.now();
+  console.log('🗑️ Chat API DELETE request started');
+
+  const parseStart = performance.now();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
+  console.log(`📝 Request parsing: ${(performance.now() - parseStart).toFixed(2)}ms`);
 
   if (!id) {
+    console.log('❌ No chat ID provided');
     return new ChatSDKError('bad_request:api').toResponse();
   }
 
+  console.log(`🎯 Deleting chat: ${id}`);
+
+  const authStart = performance.now();
   const session = await auth();
+  console.log(`🔐 Authentication: ${(performance.now() - authStart).toFixed(2)}ms`);
 
   if (!session?.user) {
+    console.log('❌ No user session found');
     return new ChatSDKError('unauthorized:chat').toResponse();
   }
 
+  const chatRetrievalStart = performance.now();
   const chat = await getChatById({ id });
+  console.log(`🗃️ Chat retrieval: ${(performance.now() - chatRetrievalStart).toFixed(2)}ms`);
 
   if (chat?.userId !== session.user.id) {
+    console.log('❌ User not authorized for this chat');
     return new ChatSDKError('forbidden:chat').toResponse();
   }
 
+  const deletionStart = performance.now();
   const deletedChat = await deleteChatById({ id });
+  console.log(`🗑️ Chat deletion: ${(performance.now() - deletionStart).toFixed(2)}ms`);
+
+  const totalTime = performance.now() - startTime;
+  console.log(`✅ DELETE request completed in: ${totalTime.toFixed(2)}ms`);
+  console.log('=== Chat API DELETE Performance Summary ===');
+  console.log(`Chat ID: ${id}`);
+  console.log(`Total duration: ${totalTime.toFixed(2)}ms`);
+  console.log('===========================================');
 
   return Response.json(deletedChat, { status: 200 });
 }
