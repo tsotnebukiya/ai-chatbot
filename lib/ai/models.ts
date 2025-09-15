@@ -9,13 +9,13 @@ export interface ChatModel {
 export const chatModels: Array<ChatModel> = [
   {
     id: 'chat-model',
-    name: 'Grok Vision',
-    description: 'Advanced multimodal model with vision and text capabilities',
+    name: 'Mistral Large',
+    description: 'Flagship Mistral general model (mistral-large-latest, 128K context) for high‑quality chat.',
   },
   {
     id: 'chat-model-reasoning',
-    name: 'Grok Reasoning',
+    name: 'Mistral Large (Reasoning)',
     description:
-      'Uses advanced chain-of-thought reasoning for complex problems',
+      'Same model with <think> tag extraction enabled for step-by-step reasoning display.',
   },
 ];

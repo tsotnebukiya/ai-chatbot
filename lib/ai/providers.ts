@@ -1,36 +1,14 @@
 import { openai } from '@ai-sdk/openai';
-import { isTestEnvironment } from '../constants';
+import {mistral} from '@ai-sdk/mistral';
 import { customProvider, extractReasoningMiddleware, wrapLanguageModel } from 'ai';
 
-export const myProvider = isTestEnvironment
-  ? (() => {
-      const {
-        chatModel,
-        reasoningModel,
-        titleModel,
-      } = require('./models.mock');
-      return {
-        languageModel: (modelId: string) => {
-          switch (modelId) {
-            case 'chat-model':
-              return chatModel;
-            case 'chat-model-reasoning':
-              return reasoningModel;
-            case 'title-model':
-              return titleModel;
-            default:
-              throw new Error(`Unknown model: ${modelId}`);
-          }
-        },
-      };
-    })()
-  : customProvider({
+export const myProvider = customProvider({
       languageModels: {
-        'chat-model': openai('gpt-5'),
+        'chat-model': mistral('mistral-large-latest'),
         'chat-model-reasoning': wrapLanguageModel({
-          model: openai('gpt-5'),
+          model:mistral('mistral-large-latest'),
           middleware: extractReasoningMiddleware({ tagName: 'think' }),
         }),
-        'title-model': openai('gpt-3.5-turbo'),
+        'title-model': mistral('mistral-small-latest'),
       },
     });
