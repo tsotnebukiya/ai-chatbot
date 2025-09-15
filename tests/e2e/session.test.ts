@@ -3,6 +3,7 @@ import { AuthPage } from '../pages/auth';
 import { generateRandomTestUser } from '../helpers';
 import { ChatPage } from '../pages/chat';
 import { getMessageByErrorCode } from '@/lib/errors';
+import type { Request as PlaywrightRequest } from '@playwright/test';
 
 test.describe
   .serial('Guest Session', () => {
@@ -15,13 +16,18 @@ test.describe
         throw new Error('Failed to load page');
       }
 
-      let request = response.request();
+      let request: PlaywrightRequest | null = response.request();
 
       const chain = [];
 
       while (request) {
         chain.unshift(request.url());
-        request = request.redirectedFrom();
+        const redirectedFrom = request.redirectedFrom();
+        if (redirectedFrom) {
+          request = redirectedFrom;
+        } else {
+          request = null;
+        }
       }
 
       expect(chain).toEqual([
@@ -57,13 +63,18 @@ test.describe
         throw new Error('Failed to load page');
       }
 
-      let request = response.request();
+      let request: PlaywrightRequest | null = response.request();
 
       const chain = [];
 
       while (request) {
         chain.unshift(request.url());
-        request = request.redirectedFrom();
+        const redirectedFrom = request.redirectedFrom();
+        if (redirectedFrom) {
+          request = redirectedFrom;
+        } else {
+          request = null;
+        }
       }
 
       expect(chain).toEqual(['http://localhost:3000/']);

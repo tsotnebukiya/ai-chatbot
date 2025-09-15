@@ -25,8 +25,6 @@ import {
 } from '@/components/ui/tooltip';
 
 import { ArrowUpIcon, StopIcon, SummarizeIcon } from './icons';
-import { artifactDefinitions, type ArtifactKind } from './artifact';
-import type { ArtifactToolbarItem } from './create-artifact';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import type { ChatMessage } from '@/lib/types';
 
@@ -243,63 +241,6 @@ const ReadingLevelSelector = ({
   );
 };
 
-export const Tools = ({
-  isToolbarVisible,
-  selectedTool,
-  setSelectedTool,
-  sendMessage,
-  isAnimating,
-  setIsToolbarVisible,
-  tools,
-}: {
-  isToolbarVisible: boolean;
-  selectedTool: string | null;
-  setSelectedTool: Dispatch<SetStateAction<string | null>>;
-  sendMessage: UseChatHelpers<ChatMessage>['sendMessage'];
-  isAnimating: boolean;
-  setIsToolbarVisible: Dispatch<SetStateAction<boolean>>;
-  tools: Array<ArtifactToolbarItem>;
-}) => {
-  const [primaryTool, ...secondaryTools] = tools;
-
-  return (
-    <motion.div
-      className="flex flex-col gap-1.5"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-    >
-      <AnimatePresence>
-        {isToolbarVisible &&
-          secondaryTools.map((secondaryTool) => (
-            <Tool
-              key={secondaryTool.description}
-              description={secondaryTool.description}
-              icon={secondaryTool.icon}
-              selectedTool={selectedTool}
-              setSelectedTool={setSelectedTool}
-              sendMessage={sendMessage}
-              isAnimating={isAnimating}
-              onClick={secondaryTool.onClick}
-            />
-          ))}
-      </AnimatePresence>
-
-      <Tool
-        description={primaryTool.description}
-        icon={primaryTool.icon}
-        selectedTool={selectedTool}
-        setSelectedTool={setSelectedTool}
-        isToolbarVisible={isToolbarVisible}
-        setIsToolbarVisible={setIsToolbarVisible}
-        sendMessage={sendMessage}
-        isAnimating={isAnimating}
-        onClick={primaryTool.onClick}
-      />
-    </motion.div>
-  );
-};
-
 const PureToolbar = ({
   isToolbarVisible,
   setIsToolbarVisible,
@@ -307,7 +248,6 @@ const PureToolbar = ({
   status,
   stop,
   setMessages,
-  artifactKind,
 }: {
   isToolbarVisible: boolean;
   setIsToolbarVisible: Dispatch<SetStateAction<boolean>>;
@@ -315,7 +255,6 @@ const PureToolbar = ({
   sendMessage: UseChatHelpers<ChatMessage>['sendMessage'];
   stop: UseChatHelpers<ChatMessage>['stop'];
   setMessages: UseChatHelpers<ChatMessage>['setMessages'];
-  artifactKind: ArtifactKind;
 }) => {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -359,20 +298,6 @@ const PureToolbar = ({
     }
   }, [status, setIsToolbarVisible]);
 
-  const artifactDefinition = artifactDefinitions.find(
-    (definition) => definition.kind === artifactKind,
-  );
-
-  if (!artifactDefinition) {
-    throw new Error('Artifact definition not found!');
-  }
-
-  const toolsByArtifactKind = artifactDefinition.toolbar;
-
-  if (toolsByArtifactKind.length === 0) {
-    return null;
-  }
-
   return (
     <TooltipProvider delayDuration={0}>
       <motion.div
@@ -391,7 +316,7 @@ const PureToolbar = ({
               : {
                   opacity: 1,
                   y: 0,
-                  height: toolsByArtifactKind.length * 50,
+                  height: 54,
                   transition: { delay: 0 },
                   scale: 1,
                 }
@@ -440,16 +365,15 @@ const PureToolbar = ({
             isAnimating={isAnimating}
           />
         ) : (
-          <Tools
-            key="tools"
-            sendMessage={sendMessage}
-            isAnimating={isAnimating}
-            isToolbarVisible={isToolbarVisible}
-            selectedTool={selectedTool}
-            setIsToolbarVisible={setIsToolbarVisible}
-            setSelectedTool={setSelectedTool}
-            tools={toolsByArtifactKind}
-          />
+          <motion.div
+            key="empty-toolbar"
+            className="p-3"
+            onClick={() => {
+              setSelectedTool('adjust-reading-level');
+            }}
+          >
+            <SummarizeIcon />
+          </motion.div>
         )}
       </motion.div>
     </TooltipProvider>
@@ -459,7 +383,6 @@ const PureToolbar = ({
 export const Toolbar = memo(PureToolbar, (prevProps, nextProps) => {
   if (prevProps.status !== nextProps.status) return false;
   if (prevProps.isToolbarVisible !== nextProps.isToolbarVisible) return false;
-  if (prevProps.artifactKind !== nextProps.artifactKind) return false;
 
   return true;
 });

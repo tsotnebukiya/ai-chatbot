@@ -9,7 +9,6 @@ import { isTestEnvironment } from '../constants';
 export const myProvider = isTestEnvironment
   ? (() => {
       const {
-        artifactModel,
         chatModel,
         reasoningModel,
         titleModel,
@@ -19,7 +18,6 @@ export const myProvider = isTestEnvironment
           'chat-model': chatModel,
           'chat-model-reasoning': reasoningModel,
           'title-model': titleModel,
-          'artifact-model': artifactModel,
         },
       });
     })()
@@ -31,6 +29,5 @@ export const myProvider = isTestEnvironment
           middleware: extractReasoningMiddleware({ tagName: 'think' }),
         }),
         'title-model': gateway.languageModel('xai/grok-2-1212'),
-        'artifact-model': gateway.languageModel('xai/grok-2-1212'),
       },
     });
