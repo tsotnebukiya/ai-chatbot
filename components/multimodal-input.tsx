@@ -35,7 +35,6 @@ import type { UseChatHelpers } from '@ai-sdk/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
-import type { VisibilityType } from './visibility-selector';
 import type { Attachment, ChatMessage } from '@/lib/types';
 import { chatModels } from '@/lib/ai/models';
 import { saveChatModelAsCookie } from '@/app/(chat)/actions';
@@ -56,7 +55,6 @@ function PureMultimodalInput({
   setMessages,
   sendMessage,
   className,
-  selectedVisibilityType,
   selectedModelId,
   usage,
 }: {
@@ -71,7 +69,6 @@ function PureMultimodalInput({
   setMessages: UseChatHelpers<ChatMessage>['setMessages'];
   sendMessage: UseChatHelpers<ChatMessage>['sendMessage'];
   className?: string;
-  selectedVisibilityType: VisibilityType;
   selectedModelId: string;
   usage?: LanguageModelUsage;
 }) {
@@ -285,7 +282,6 @@ function PureMultimodalInput({
           <SuggestedActions
             sendMessage={sendMessage}
             chatId={chatId}
-            selectedVisibilityType={selectedVisibilityType}
           />
         )}
 
@@ -391,7 +387,6 @@ export const MultimodalInput = memo(
     if (prevProps.input !== nextProps.input) return false;
     if (prevProps.status !== nextProps.status) return false;
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
-    if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
       return false;
     if (prevProps.selectedModelId !== nextProps.selectedModelId) return false;
 

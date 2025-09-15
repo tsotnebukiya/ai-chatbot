@@ -1,7 +1,6 @@
 import { PreviewMessage, ThinkingMessage } from './message';
 import { Greeting } from './greeting';
 import { memo, useEffect } from 'react';
-import type { Vote } from '@/lib/db/schema';
 import equal from 'fast-deep-equal';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import { useMessages } from '@/hooks/use-messages';
@@ -13,7 +12,6 @@ import { ArrowDownIcon } from 'lucide-react';
 interface MessagesProps {
   chatId: string;
   status: UseChatHelpers<ChatMessage>['status'];
-  votes: Array<Vote> | undefined;
   messages: ChatMessage[];
   setMessages: UseChatHelpers<ChatMessage>['setMessages'];
   regenerate: UseChatHelpers<ChatMessage>['regenerate'];
@@ -25,7 +23,6 @@ interface MessagesProps {
 function PureMessages({
   chatId,
   status,
-  votes,
   messages,
   setMessages,
   regenerate,
@@ -73,15 +70,9 @@ function PureMessages({
           {messages.map((message, index) => (
             <PreviewMessage
               key={message.id}
-              chatId={chatId}
               message={message}
               isLoading={
                 status === 'streaming' && messages.length - 1 === index
-              }
-              vote={
-                votes
-                  ? votes.find((vote) => vote.messageId === message.id)
-                  : undefined
               }
               setMessages={setMessages}
               regenerate={regenerate}
@@ -126,7 +117,6 @@ export const Messages = memo(PureMessages, (prevProps, nextProps) => {
   if (prevProps.selectedModelId !== nextProps.selectedModelId) return false;
   if (prevProps.messages.length !== nextProps.messages.length) return false;
   if (!equal(prevProps.messages, nextProps.messages)) return false;
-  if (!equal(prevProps.votes, nextProps.votes)) return false;
 
   return false;
 });

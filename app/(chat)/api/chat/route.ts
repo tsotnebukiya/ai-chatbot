@@ -35,7 +35,6 @@ import { after } from 'next/server';
 import { ChatSDKError } from '@/lib/errors';
 import type { ChatMessage } from '@/lib/types';
 import type { ChatModel } from '@/lib/ai/models';
-import type { VisibilityType } from '@/components/visibility-selector';
 
 export const maxDuration = 60;
 
@@ -72,8 +71,8 @@ export async function POST(request: Request) {
     const json = await request.json();
     requestBody = postRequestBodySchema.parse(json);
     console.log(`📝 Request parsing: ${(performance.now() - parseStart).toFixed(2)}ms`);
-  } catch (_) {
-    console.log('❌ Request parsing failed');
+  } catch (error) {
+    console.log('❌ Request parsing failed', error);
     return new ChatSDKError('bad_request:api').toResponse();
   }
 
@@ -82,12 +81,10 @@ export async function POST(request: Request) {
       id,
       message,
       selectedChatModel,
-      selectedVisibilityType,
     }: {
       id: string;
       message: ChatMessage;
       selectedChatModel: ChatModel['id'];
-      selectedVisibilityType: VisibilityType;
     } = requestBody;
 
     console.log(`🎯 Processing chat: ${id}, model: ${selectedChatModel}`);
@@ -131,7 +128,6 @@ export async function POST(request: Request) {
         id,
         userId: session.user.id,
         title,
-        visibility: selectedVisibilityType,
       });
       console.log(`💾 Chat creation: ${(performance.now() - saveChatStart).toFixed(2)}ms`);
     } else {

@@ -1,7 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
 import { memo, useState } from 'react';
-import type { Vote } from '@/lib/db/schema';
 import { SparklesIcon } from './icons';
 import { Response } from './elements/response';
 import { MessageContent } from './elements/message';
@@ -24,9 +23,7 @@ import type { ChatMessage } from '@/lib/types';
 import { useDataStream } from './data-stream-provider';
 
 const PurePreviewMessage = ({
-  chatId,
   message,
-  vote,
   isLoading,
   setMessages,
   regenerate,
@@ -34,9 +31,7 @@ const PurePreviewMessage = ({
   requiresScrollPadding,
   isArtifactVisible,
 }: {
-  chatId: string;
   message: ChatMessage;
-  vote: Vote | undefined;
   isLoading: boolean;
   setMessages: UseChatHelpers<ChatMessage>['setMessages'];
   regenerate: UseChatHelpers<ChatMessage>['regenerate'];
@@ -191,9 +186,7 @@ const PurePreviewMessage = ({
           {!isReadonly && (
             <MessageActions
               key={`action-${message.id}`}
-              chatId={chatId}
               message={message}
-              vote={vote}
               isLoading={isLoading}
               setMode={setMode}
             />
@@ -212,7 +205,6 @@ export const PreviewMessage = memo(
     if (prevProps.requiresScrollPadding !== nextProps.requiresScrollPadding)
       return false;
     if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
-    if (!equal(prevProps.vote, nextProps.vote)) return false;
 
     return false;
   },
