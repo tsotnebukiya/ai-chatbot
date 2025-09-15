@@ -291,15 +291,13 @@ export async function POST(request: Request) {
       return error.toResponse();
     }
 
-    // Check for Vercel AI Gateway credit card error
+    // Check for OpenAI API key error
     if (
       error instanceof Error &&
-      error.message?.includes(
-        'AI Gateway requires a valid credit card on file to service requests',
-      )
+      error.message?.includes('API key')
     ) {
-      console.log('❌ AI Gateway credit card error');
-      return new ChatSDKError('bad_request:activate_gateway').toResponse();
+      console.log('❌ OpenAI API key error');
+      return new ChatSDKError('bad_request:api').toResponse();
     }
 
     return new ChatSDKError('offline:chat').toResponse();

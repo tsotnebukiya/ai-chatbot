@@ -1,10 +1,6 @@
-import {
-  customProvider,
-  extractReasoningMiddleware,
-  wrapLanguageModel,
-} from 'ai';
-import { gateway } from '@ai-sdk/gateway';
+import { openai } from '@ai-sdk/openai';
 import { isTestEnvironment } from '../constants';
+import { customProvider, extractReasoningMiddleware, wrapLanguageModel } from 'ai';
 
 export const myProvider = isTestEnvironment
   ? (() => {
@@ -13,21 +9,28 @@ export const myProvider = isTestEnvironment
         reasoningModel,
         titleModel,
       } = require('./models.mock');
-      return customProvider({
-        languageModels: {
-          'chat-model': chatModel,
-          'chat-model-reasoning': reasoningModel,
-          'title-model': titleModel,
+      return {
+        languageModel: (modelId: string) => {
+          switch (modelId) {
+            case 'chat-model':
+              return chatModel;
+            case 'chat-model-reasoning':
+              return reasoningModel;
+            case 'title-model':
+              return titleModel;
+            default:
+              throw new Error(`Unknown model: ${modelId}`);
+          }
         },
-      });
+      };
     })()
   : customProvider({
       languageModels: {
-        'chat-model': gateway.languageModel('xai/grok-2-vision-1212'),
+        'chat-model': openai('gpt-5'),
         'chat-model-reasoning': wrapLanguageModel({
-          model: gateway.languageModel('xai/grok-3-mini'),
+          model: openai('gpt-5'),
           middleware: extractReasoningMiddleware({ tagName: 'think' }),
         }),
-        'title-model': gateway.languageModel('xai/grok-2-1212'),
+        'title-model': openai('gpt-3.5-turbo'),
       },
     });
