@@ -24,7 +24,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const isHttps = request.nextUrl.protocol === 'https:';
+  const forwardedProto = request.headers.get('x-forwarded-proto');
+  const isHttps = forwardedProto?.includes('https') || request.nextUrl.protocol === 'https:';
 
   const token = await getToken({
     req: request,

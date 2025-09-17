@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Suspense, useActionState, useEffect, useState } from 'react';
 import { toast } from '@/components/toast';
 
@@ -9,7 +9,6 @@ import { AuthForm } from '@/components/auth-form';
 import { SubmitButton } from '@/components/submit-button';
 
 import { login, type LoginActionState } from '../actions';
-import { useSession } from 'next-auth/react';
 
 export default function Page() {
   return (
@@ -20,7 +19,6 @@ export default function Page() {
 }
 
 function LoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirectUrl') ?? '/';
 
@@ -34,8 +32,6 @@ function LoginContent() {
     },
   );
 
-  const { update: updateSession } = useSession();
-
   useEffect(() => {
     if (state.status === 'failed') {
       toast({
@@ -47,16 +43,13 @@ function LoginContent() {
         type: 'error',
         description: 'Failed validating your submission!',
       });
-    } else if (state.status === 'success') {
-      setIsSuccessful(true);
-      void updateSession().then(() => {
-        router.replace(redirectUrl);
-      });
     }
-  }, [state.status, router, updateSession, redirectUrl]);
+  }, [state.status]);
 
   const handleSubmit = (formData: FormData) => {
     setEmail(formData.get('email') as string);
+    formData.set('redirectUrl', redirectUrl);
+    setIsSuccessful(true);
     formAction(formData);
   };
 

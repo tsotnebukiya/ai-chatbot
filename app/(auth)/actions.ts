@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { createUser, getUser } from '@/lib/db/queries';
 
 import { signIn } from './auth';
+import { AuthError } from 'next-auth';
 
 const authFormSchema = z.object({
   email: z.string().email(),
@@ -25,10 +26,12 @@ export const login = async (
       password: formData.get('password'),
     });
 
+    const redirectUrl = (formData.get('redirectUrl') as string | null) ?? '/';
+
     await signIn('credentials', {
       email: validatedData.email,
       password: validatedData.password,
-      redirect: false,
+      redirectTo: redirectUrl,
     });
 
     return { status: 'success' };
@@ -37,7 +40,11 @@ export const login = async (
       return { status: 'invalid_data' };
     }
 
-    return { status: 'failed' };
+    if (error instanceof AuthError && error.type === 'CredentialsSignin') {
+      return { status: 'failed' };
+    }
+
+    throw error;
   }
 };
 
@@ -67,10 +74,12 @@ export const register = async (
       return { status: 'user_exists' } as RegisterActionState;
     }
     await createUser(validatedData.email, validatedData.password);
+    const redirectUrl = (formData.get('redirectUrl') as string | null) ?? '/';
+
     await signIn('credentials', {
       email: validatedData.email,
       password: validatedData.password,
-      redirect: false,
+      redirectTo: redirectUrl,
     });
 
     return { status: 'success' };
@@ -79,6 +88,10 @@ export const register = async (
       return { status: 'invalid_data' };
     }
 
-    return { status: 'failed' };
+    if (error instanceof AuthError && error.type === 'CredentialsSignin') {
+      return { status: 'failed' };
+    }
+
+    throw error;
   }
 };

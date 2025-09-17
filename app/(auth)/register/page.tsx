@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Suspense, useActionState, useEffect, useState } from 'react';
 
 import { AuthForm } from '@/components/auth-form';
@@ -9,7 +9,6 @@ import { SubmitButton } from '@/components/submit-button';
 
 import { register, type RegisterActionState } from '../actions';
 import { toast } from '@/components/toast';
-import { useSession } from 'next-auth/react';
 
 export default function Page() {
   return (
@@ -20,7 +19,6 @@ export default function Page() {
 }
 
 function RegisterContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirectUrl') ?? '/';
 
@@ -34,8 +32,6 @@ function RegisterContent() {
     },
   );
 
-  const { update: updateSession } = useSession();
-
   useEffect(() => {
     if (state.status === 'user_exists') {
       toast({ type: 'error', description: 'Account already exists!' });
@@ -48,16 +44,13 @@ function RegisterContent() {
       });
     } else if (state.status === 'success') {
       toast({ type: 'success', description: 'Account created successfully!' });
-
-      setIsSuccessful(true);
-      void updateSession().then(() => {
-        router.replace(redirectUrl);
-      });
     }
-  }, [state, router, updateSession, redirectUrl]);
+  }, [state.status]);
 
   const handleSubmit = (formData: FormData) => {
     setEmail(formData.get('email') as string);
+    formData.set('redirectUrl', redirectUrl);
+    setIsSuccessful(true);
     formAction(formData);
   };
 
@@ -78,7 +71,7 @@ function RegisterContent() {
               href={`/login?redirectUrl=${encodeURIComponent(redirectUrl)}`}
               className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
             >
-              Sign in
+              Sign in 1
             </Link>
             {' instead.'}
           </p>
