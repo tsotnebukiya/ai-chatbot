@@ -58,6 +58,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `pnpm test` - Run Playwright tests (requires PLAYWRIGHT=True)
 
+### Docker Development
+
+- `docker-compose up` - Start development environment
+- `docker-compose down` - Stop development environment
+
+### Production Deployment
+
+- **Automated CI/CD**: GitHub Actions deploy to Digital Ocean on main branch push
+- **Quality Gates**: Lint/type checking required before deployment
+- **Database**: Automatic migrations during deployment
+
 ## Architecture Overview
 
 This is a Next.js AI chatbot application built with:
@@ -129,7 +140,21 @@ Required environment variables (see .env.local):
 - `POSTGRES_URL` - Database connection string
 - `NEXTAUTH_URL` - Application URL for auth
 - `NEXTAUTH_SECRET` - Auth secret
+- `BLOB_READ_WRITE_TOKEN` - Vercel Blob storage token
 - AI provider API keys (OpenAI, Mistral, XAI)
+
+#### GitHub Secrets (Deployment)
+
+- `DOCKERHUB_USERNAME` - Docker Hub username
+- `DOCKERHUB_TOKEN` - Docker Hub access token
+- `DEPLOY_HOST` - Digital Ocean droplet IP
+- `DEPLOY_USER` - SSH username
+- `SSH_KEY` - Private SSH key
+- `POSTGRES_URL` - Production database
+- `BLOB_READ_WRITE_TOKEN` - Vercel Blob token
+- `AUTH_SECRET` - NextAuth secret
+- `MISTRAL_API_KEY` - Mistral AI key
+- `NEXTAUTH_URL` - Production URL
 
 ## Code Style and Conventions
 
@@ -140,11 +165,16 @@ Required environment variables (see .env.local):
 - **Database**: Drizzle ORM with PostgreSQL
 - **Testing**: Playwright for E2E tests
 
+## Docker Configuration
+
+- **Development**: `docker-compose.yml` with hot-reloading and local services
+- **Production**: `docker-compose.prod.yml` with Docker Hub images and environment variables
+- **Dockerfiles**: Multi-stage production build with security best practices
+- **CI/CD**: GitHub Actions with quality gates and automatic deployment
+
 ## Important Notes
 
 - The project uses `pnpm` as the package manager
-- Database migrations are managed through Drizzle Kit
-- The application supports both private and public chat visibility
-- Message system supports attachments and structured content parts
-- Real-time streaming requires proper session management
+- Database migrations use `pnpm db:push`
+- Production deploys to Digital Ocean via GitHub Actions
 - **Always run `npx tsc` after completing tasks to ensure TypeScript type safety**
