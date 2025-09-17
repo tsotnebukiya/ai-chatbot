@@ -10,6 +10,7 @@ services:
       - AUTH_SECRET=${AUTH_SECRET}
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
     depends_on:
       - db
       - redis

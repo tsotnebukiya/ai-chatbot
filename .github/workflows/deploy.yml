@@ -68,6 +68,7 @@ jobs:
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             export AUTH_SECRET=${{ secrets.AUTH_SECRET }}
             export MISTRAL_API_KEY=${{ secrets.MISTRAL_API_KEY }}
+            export NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
             docker compose -f docker-compose.prod.yml down
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ai-chatbot:latest
             docker compose -f docker-compose.prod.yml up -d

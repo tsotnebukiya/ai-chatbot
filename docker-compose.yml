@@ -9,6 +9,7 @@ services:
       - NODE_ENV=development
       - POSTGRES_URL=postgresql://postgres:password@db:5432/ai-chatbot
       - REDIS_URL=redis://redis:6379
+      - NEXTAUTH_URL=http://localhost:3000
     volumes:
       - .:/app
       - /app/node_modules
