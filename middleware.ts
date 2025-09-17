@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { isDevelopmentEnvironment } from './lib/constants';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -25,10 +24,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const isHttps = request.nextUrl.protocol === 'https:';
+
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,
-    secureCookie: !isDevelopmentEnvironment,
+    secureCookie: isHttps,
   });
 
   if (!token) {
