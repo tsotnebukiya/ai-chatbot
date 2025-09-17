@@ -33,7 +33,8 @@ export async function middleware(request: NextRequest) {
 
   if (!token) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirectUrl', request.url);
+    const redirectPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+    loginUrl.searchParams.set('redirectUrl', redirectPath);
 
     return NextResponse.redirect(loginUrl);
   }
