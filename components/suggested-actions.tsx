@@ -11,10 +11,7 @@ interface SuggestedActionsProps {
   sendMessage: UseChatHelpers<ChatMessage>['sendMessage'];
 }
 
-function PureSuggestedActions({
-  chatId,
-  sendMessage,
-}: SuggestedActionsProps) {
+function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
   const suggestedActions = [
     'What are the advantages of using Next.js?',
     "Write code to demonstrate Dijkstra's algorithm",

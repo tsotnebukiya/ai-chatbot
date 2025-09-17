@@ -47,13 +47,7 @@ export function getStreamContext() {
         waitUntil: after,
       });
     } catch (error: any) {
-      if (error.message.includes('REDIS_URL')) {
-        console.log(
-          ' > Resumable streams are disabled due to missing REDIS_URL',
-        );
-      } else {
-        console.error(error);
-      }
+      console.error(error);
     }
   }
 
@@ -70,7 +64,9 @@ export async function POST(request: Request) {
     const parseStart = performance.now();
     const json = await request.json();
     requestBody = postRequestBodySchema.parse(json);
-    console.log(`📝 Request parsing: ${(performance.now() - parseStart).toFixed(2)}ms`);
+    console.log(
+      `📝 Request parsing: ${(performance.now() - parseStart).toFixed(2)}ms`,
+    );
   } catch (error) {
     console.log('❌ Request parsing failed', error);
     return new ChatSDKError('bad_request:api').toResponse();
@@ -91,7 +87,9 @@ export async function POST(request: Request) {
 
     const authStart = performance.now();
     const session = await auth();
-    console.log(`🔐 Authentication: ${(performance.now() - authStart).toFixed(2)}ms`);
+    console.log(
+      `🔐 Authentication: ${(performance.now() - authStart).toFixed(2)}ms`,
+    );
 
     if (!session?.user) {
       console.log('❌ No user session found');
@@ -105,7 +103,9 @@ export async function POST(request: Request) {
       id: session.user.id,
       differenceInHours: 24,
     });
-    console.log(`📊 Rate limit check: ${(performance.now() - rateLimitStart).toFixed(2)}ms`);
+    console.log(
+      `📊 Rate limit check: ${(performance.now() - rateLimitStart).toFixed(2)}ms`,
+    );
 
     if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
       console.log('🚫 Rate limit exceeded');
@@ -114,14 +114,18 @@ export async function POST(request: Request) {
 
     const chatRetrievalStart = performance.now();
     const chat = await getChatById({ id });
-    console.log(`🗃️ Chat retrieval: ${(performance.now() - chatRetrievalStart).toFixed(2)}ms`);
+    console.log(
+      `🗃️ Chat retrieval: ${(performance.now() - chatRetrievalStart).toFixed(2)}ms`,
+    );
 
     if (!chat) {
       const titleStart = performance.now();
       const title = await generateTitleFromUserMessage({
         message,
       });
-      console.log(`📝 Title generation: ${(performance.now() - titleStart).toFixed(2)}ms`);
+      console.log(
+        `📝 Title generation: ${(performance.now() - titleStart).toFixed(2)}ms`,
+      );
 
       const saveChatStart = performance.now();
       await saveChat({
@@ -129,7 +133,9 @@ export async function POST(request: Request) {
         userId: session.user.id,
         title,
       });
-      console.log(`💾 Chat creation: ${(performance.now() - saveChatStart).toFixed(2)}ms`);
+      console.log(
+        `💾 Chat creation: ${(performance.now() - saveChatStart).toFixed(2)}ms`,
+      );
     } else {
       if (chat.userId !== session.user.id) {
         console.log('❌ User not authorized for this chat');
@@ -139,15 +145,21 @@ export async function POST(request: Request) {
 
     const messageHistoryStart = performance.now();
     const messagesFromDb = await getMessagesByChatId({ id });
-    console.log(`📜 Message history retrieval: ${(performance.now() - messageHistoryStart).toFixed(2)}ms, ${messagesFromDb.length} messages`);
+    console.log(
+      `📜 Message history retrieval: ${(performance.now() - messageHistoryStart).toFixed(2)}ms, ${messagesFromDb.length} messages`,
+    );
 
     const messageProcessingStart = performance.now();
     const uiMessages = [...convertToUIMessages(messagesFromDb), message];
-    console.log(`🔄 Message processing: ${(performance.now() - messageProcessingStart).toFixed(2)}ms`);
+    console.log(
+      `🔄 Message processing: ${(performance.now() - messageProcessingStart).toFixed(2)}ms`,
+    );
 
     const geoStart = performance.now();
     const { longitude, latitude, city, country } = geolocation(request);
-    console.log(`🌍 Geolocation: ${(performance.now() - geoStart).toFixed(2)}ms`);
+    console.log(
+      `🌍 Geolocation: ${(performance.now() - geoStart).toFixed(2)}ms`,
+    );
 
     const requestHints: RequestHints = {
       longitude,
@@ -169,17 +181,23 @@ export async function POST(request: Request) {
         },
       ],
     });
-    console.log(`💾 User message save: ${(performance.now() - saveMessageStart).toFixed(2)}ms`);
+    console.log(
+      `💾 User message save: ${(performance.now() - saveMessageStart).toFixed(2)}ms`,
+    );
 
     const streamSetupStart = performance.now();
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
-    console.log(`🔄 Stream setup: ${(performance.now() - streamSetupStart).toFixed(2)}ms`);
+    console.log(
+      `🔄 Stream setup: ${(performance.now() - streamSetupStart).toFixed(2)}ms`,
+    );
 
     let finalUsage: LanguageModelUsage | undefined;
 
     const aiResponseStart = performance.now();
-    console.log(`🤖 Starting AI response generation with model: ${selectedChatModel}`);
+    console.log(
+      `🤖 Starting AI response generation with model: ${selectedChatModel}`,
+    );
 
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
@@ -190,11 +208,7 @@ export async function POST(request: Request) {
           messages: convertToModelMessages(uiMessages),
           stopWhen: stepCountIs(5),
           experimental_activeTools:
-            selectedChatModel === 'chat-model-reasoning'
-              ? []
-              : [
-                  'getWeather',
-                ],
+            selectedChatModel === 'chat-model-reasoning' ? [] : ['getWeather'],
           experimental_transform: smoothStream({ chunking: 'word' }),
           tools: {
             getWeather,
@@ -217,7 +231,9 @@ export async function POST(request: Request) {
             sendReasoning: true,
           }),
         );
-        console.log(`🤖 StreamText execution: ${(performance.now() - streamTextStart).toFixed(2)}ms`);
+        console.log(
+          `🤖 StreamText execution: ${(performance.now() - streamTextStart).toFixed(2)}ms`,
+        );
       },
       generateId: generateUUID,
       onFinish: async ({ messages }) => {
@@ -232,7 +248,9 @@ export async function POST(request: Request) {
             chatId: id,
           })),
         });
-        console.log(`💾 Assistant message save: ${(performance.now() - saveAssistantStart).toFixed(2)}ms`);
+        console.log(
+          `💾 Assistant message save: ${(performance.now() - saveAssistantStart).toFixed(2)}ms`,
+        );
 
         if (finalUsage) {
           try {
@@ -241,7 +259,9 @@ export async function POST(request: Request) {
               chatId: id,
               context: finalUsage,
             });
-            console.log(`💾 Usage persistence: ${(performance.now() - usagePersistStart).toFixed(2)}ms`);
+            console.log(
+              `💾 Usage persistence: ${(performance.now() - usagePersistStart).toFixed(2)}ms`,
+            );
           } catch (err) {
             console.warn('Unable to persist last usage for chat', id, err);
           }
@@ -251,7 +271,9 @@ export async function POST(request: Request) {
         return 'Oops, an error occurred!';
       },
     });
-    console.log(`🤖 AI response generation setup: ${(performance.now() - aiResponseStart).toFixed(2)}ms`);
+    console.log(
+      `🤖 AI response generation setup: ${(performance.now() - aiResponseStart).toFixed(2)}ms`,
+    );
 
     const responseStart = performance.now();
     const streamContext = getStreamContext();
@@ -264,11 +286,15 @@ export async function POST(request: Request) {
         ),
       );
     } else {
-      response = new Response(stream.pipeThrough(new JsonToSseTransformStream()));
+      response = new Response(
+        stream.pipeThrough(new JsonToSseTransformStream()),
+      );
     }
 
     const totalTime = performance.now() - startTime;
-    console.log(`📤 Response streaming: ${(performance.now() - responseStart).toFixed(2)}ms`);
+    console.log(
+      `📤 Response streaming: ${(performance.now() - responseStart).toFixed(2)}ms`,
+    );
     console.log(`✅ Total request time: ${totalTime.toFixed(2)}ms`);
     console.log('=== Chat API Performance Summary ===');
     console.log(`Chat ID: ${id}`);
@@ -288,10 +314,7 @@ export async function POST(request: Request) {
     }
 
     // Check for OpenAI API key error
-    if (
-      error instanceof Error &&
-      error.message?.includes('API key')
-    ) {
+    if (error instanceof Error && error.message?.includes('API key')) {
       console.log('❌ OpenAI API key error');
       return new ChatSDKError('bad_request:api').toResponse();
     }
@@ -307,7 +330,9 @@ export async function DELETE(request: Request) {
   const parseStart = performance.now();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
-  console.log(`📝 Request parsing: ${(performance.now() - parseStart).toFixed(2)}ms`);
+  console.log(
+    `📝 Request parsing: ${(performance.now() - parseStart).toFixed(2)}ms`,
+  );
 
   if (!id) {
     console.log('❌ No chat ID provided');
@@ -318,7 +343,9 @@ export async function DELETE(request: Request) {
 
   const authStart = performance.now();
   const session = await auth();
-  console.log(`🔐 Authentication: ${(performance.now() - authStart).toFixed(2)}ms`);
+  console.log(
+    `🔐 Authentication: ${(performance.now() - authStart).toFixed(2)}ms`,
+  );
 
   if (!session?.user) {
     console.log('❌ No user session found');
@@ -327,7 +354,9 @@ export async function DELETE(request: Request) {
 
   const chatRetrievalStart = performance.now();
   const chat = await getChatById({ id });
-  console.log(`🗃️ Chat retrieval: ${(performance.now() - chatRetrievalStart).toFixed(2)}ms`);
+  console.log(
+    `🗃️ Chat retrieval: ${(performance.now() - chatRetrievalStart).toFixed(2)}ms`,
+  );
 
   if (chat?.userId !== session.user.id) {
     console.log('❌ User not authorized for this chat');
@@ -336,7 +365,9 @@ export async function DELETE(request: Request) {
 
   const deletionStart = performance.now();
   const deletedChat = await deleteChatById({ id });
-  console.log(`🗑️ Chat deletion: ${(performance.now() - deletionStart).toFixed(2)}ms`);
+  console.log(
+    `🗑️ Chat deletion: ${(performance.now() - deletionStart).toFixed(2)}ms`,
+  );
 
   const totalTime = performance.now() - startTime;
   console.log(`✅ DELETE request completed in: ${totalTime.toFixed(2)}ms`);

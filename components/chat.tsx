@@ -3,9 +3,9 @@
 import { DefaultChatTransport, type LanguageModelUsage } from 'ai';
 import { useChat } from '@ai-sdk/react';
 import { useEffect, useState } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
+import { useSWRConfig } from 'swr';
 import { ChatHeader } from '@/components/chat-header';
-import { fetcher, fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
+import { fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
 import { MultimodalInput } from './multimodal-input';
 import { Messages } from './messages';
 import { unstable_serialize } from 'swr/infinite';
@@ -45,7 +45,6 @@ export function Chat({
   autoResume: boolean;
   initialLastContext?: LanguageModelUsage;
 }) {
-
   const { mutate } = useSWRConfig();
   const { setDataStream } = useDataStream();
 
@@ -125,7 +124,6 @@ export function Chat({
     }
   }, [query, sendMessage, hasAppendedQuery, id]);
 
-
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 
   useAutoResume({
@@ -138,9 +136,7 @@ export function Chat({
   return (
     <>
       <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background">
-        <ChatHeader
-          isReadonly={isReadonly}
-        />
+        <ChatHeader isReadonly={isReadonly} />
 
         <Messages
           chatId={id}
@@ -172,7 +168,6 @@ export function Chat({
           )}
         </div>
       </div>
-
 
       <AlertDialog
         open={showCreditCardAlert}

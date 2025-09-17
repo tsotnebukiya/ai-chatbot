@@ -35,7 +35,7 @@ import type { LanguageModelV2Usage } from '@ai-sdk/provider';
 
 // biome-ignore lint: Forbidden non-null assertion.
 const client = postgres(process.env.POSTGRES_URL!);
-const db = drizzle(client);
+export const db = drizzle(client);
 
 export async function getUser(email: string): Promise<Array<User>> {
   try {
@@ -231,13 +231,6 @@ export async function getMessagesByChatId({ id }: { id: string }) {
   }
 }
 
-
-
-
-
-
-
-
 export async function getMessageById({ id }: { id: string }) {
   try {
     return await db.select().from(message).where(eq(message.id, id));
@@ -282,7 +275,6 @@ export async function deleteMessagesByChatIdAfterTimestamp({
     );
   }
 }
-
 
 export async function updateChatLastContextById({
   chatId,

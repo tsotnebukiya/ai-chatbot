@@ -1,0 +1,72 @@
+# Use more recent and secure Node.js version
+FROM node:20-alpine AS builder
+
+# Install only necessary build dependencies
+RUN apk add --no-cache python3 make g++ && \
+    rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files with proper permissions
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install
+
+# Copy application code
+COPY . .
+
+# Build the application
+RUN pnpm build
+
+# Use more secure and minimal Node.js image
+FROM node:20-alpine AS runner
+
+# Install pnpm and essential runtime dependencies
+RUN npm install -g pnpm && \
+    apk add --no-cache dumb-init && \
+    rm -rf /var/cache/apk/*
+
+# Create app user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 --ingroup nodejs nextjs
+
+WORKDIR /app
+
+# Copy built application from builder
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
+# Copy package files and lockfile for reproducible builds
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+
+# Install only production dependencies with security audit
+RUN pnpm install --prod && \
+    pnpm store prune
+
+# Set proper permissions
+RUN chown -R nextjs:nodejs /app
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Health check using Node.js instead of curl (removes curl dependency)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+CMD node -e "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+
+# Start the application with proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server.js"]

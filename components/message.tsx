@@ -180,8 +180,7 @@ const PurePreviewMessage = ({
                 </Tool>
               );
             }
-
-            })}
+          })}
 
           {!isReadonly && (
             <MessageActions
