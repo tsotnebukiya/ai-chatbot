@@ -24,7 +24,6 @@ import {
   type Chat,
   stream,
 } from './schema';
-import { generateUUID } from '../utils';
 import { generateHashedPassword } from './utils';
 import { ChatSDKError } from '../errors';
 import type { LanguageModelV2Usage } from '@ai-sdk/provider';
@@ -55,23 +54,6 @@ export async function createUser(email: string, password: string) {
     return await db.insert(user).values({ email, password: hashedPassword });
   } catch (error) {
     throw new ChatSDKError('bad_request:database', 'Failed to create user');
-  }
-}
-
-export async function createGuestUser() {
-  const email = `guest-${Date.now()}`;
-  const password = generateHashedPassword(generateUUID());
-
-  try {
-    return await db.insert(user).values({ email, password }).returning({
-      id: user.id,
-      email: user.email,
-    });
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to create guest user',
-    );
   }
 }
 

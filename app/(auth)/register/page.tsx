@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useActionState, useEffect, useState } from 'react';
 
 import { AuthForm } from '@/components/auth-form';
 import { SubmitButton } from '@/components/submit-button';
@@ -12,7 +12,17 @@ import { toast } from '@/components/toast';
 import { useSession } from 'next-auth/react';
 
 export default function Page() {
+  return (
+    <Suspense fallback={<AuthPageFallback />}>
+      <RegisterContent />
+    </Suspense>
+  );
+}
+
+function RegisterContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirectUrl') ?? '/';
 
   const [email, setEmail] = useState('');
   const [isSuccessful, setIsSuccessful] = useState(false);
@@ -40,10 +50,11 @@ export default function Page() {
       toast({ type: 'success', description: 'Account created successfully!' });
 
       setIsSuccessful(true);
-      updateSession();
-      router.refresh();
+      void updateSession().then(() => {
+        router.replace(redirectUrl);
+      });
     }
-  }, [state, router, updateSession]);
+  }, [state, router, updateSession, redirectUrl]);
 
   const handleSubmit = (formData: FormData) => {
     setEmail(formData.get('email') as string);
@@ -64,7 +75,7 @@ export default function Page() {
           <p className="mt-4 text-center text-gray-600 text-sm dark:text-zinc-400">
             {'Already have an account? '}
             <Link
-              href="/login"
+              href={`/login?redirectUrl=${encodeURIComponent(redirectUrl)}`}
               className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
             >
               Sign in
@@ -73,6 +84,14 @@ export default function Page() {
           </p>
         </AuthForm>
       </div>
+    </div>
+  );
+}
+
+function AuthPageFallback() {
+  return (
+    <div className="flex h-dvh w-screen items-center justify-center bg-background">
+      <span className="text-muted-foreground text-sm">Loading…</span>
     </div>
   );
 }

@@ -96,7 +96,7 @@ export async function POST(request: Request) {
       return new ChatSDKError('unauthorized:chat').toResponse();
     }
 
-    const userType: UserType = session.user.type;
+    const userType: UserType = session.user.type ?? 'regular';
 
     const rateLimitStart = performance.now();
     const messageCount = await getMessageCountByUserId({
