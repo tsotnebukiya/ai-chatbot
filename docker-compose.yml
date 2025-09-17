@@ -8,11 +8,13 @@ services:
     environment:
       - NODE_ENV=development
       - POSTGRES_URL=postgresql://postgres:password@db:5432/ai-chatbot
+      - REDIS_URL=redis://redis:6379
     volumes:
       - .:/app
       - /app/node_modules
     depends_on:
       - db
+      - redis
     networks:
       - app-network
   db:
@@ -27,9 +29,19 @@ services:
       - '5432:5432'
     networks:
       - app-network
+  redis:
+    image: redis:7-alpine
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis_data:/data
+    ports:
+      - '6379:6379'
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   app-network:

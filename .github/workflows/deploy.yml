@@ -8,15 +8,9 @@ jobs:
   lint:
     uses: ./.github/workflows/lint.yml
 
-  migrate:
-    needs: lint
-    uses: ./.github/workflows/migrate.yml
-    secrets:
-      POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
-
   deploy:
     runs-on: ubuntu-22.04
-    needs: [lint, migrate]
+    needs: lint
     concurrency:
       group: deploy-${{ github.sha }}
       cancel-in-progress: true
@@ -51,7 +45,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /opt/ai-chatbot
-            export POSTGRES_URL=${{ secrets.POSTGRES_URL }}
             export BLOB_READ_WRITE_TOKEN=${{ secrets.BLOB_READ_WRITE_TOKEN }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             export AUTH_SECRET=${{ secrets.AUTH_SECRET }}
@@ -59,3 +52,4 @@ jobs:
             docker-compose -f docker-compose.prod.yml down
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ai-chatbot:latest
             docker-compose -f docker-compose.prod.yml up -d
+            docker-compose -f docker-compose.prod.yml exec -T app pnpm db:push

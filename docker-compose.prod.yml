@@ -5,12 +5,14 @@ services:
       - '3000:3000'
     environment:
       - NODE_ENV=production
-      - POSTGRES_URL=${POSTGRES_URL}
+      - POSTGRES_URL=${POSTGRES_URL:-postgresql://postgres:password@db:5432/ai-chatbot}
       - BLOB_READ_WRITE_TOKEN=${BLOB_READ_WRITE_TOKEN}
       - AUTH_SECRET=${AUTH_SECRET}
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
     depends_on:
       - db
+      - redis
     networks:
       - app-network
   db:
@@ -25,9 +27,19 @@ services:
       - '5432:5432'
     networks:
       - app-network
+  redis:
+    image: redis:7-alpine
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis_data:/data
+    ports:
+      - '6379:6379'
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   app-network:
