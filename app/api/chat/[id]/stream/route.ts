@@ -1,4 +1,4 @@
-import { auth } from '@/app/(auth)/auth';
+import { requireAuth } from '@/lib/auth/session';
 import {
   getChatById,
   getMessagesByChatId,
@@ -28,11 +28,7 @@ export async function GET(
     return new ChatSDKError('bad_request:api').toResponse();
   }
 
-  const session = await auth();
-
-  if (!session?.user) {
-    return new ChatSDKError('unauthorized:chat').toResponse();
-  }
+  const session = await requireAuth();
 
   let chat: Chat | null;
 

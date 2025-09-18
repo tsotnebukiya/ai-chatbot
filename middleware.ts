@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+
+import { auth } from '@/lib/auth/auth';
+import type { Session } from '@/lib/auth/auth';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -24,16 +26,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const forwardedProto = request.headers.get('x-forwarded-proto');
-  const isHttps = forwardedProto?.includes('https') || request.nextUrl.protocol === 'https:';
+  let session: Session | null = null;
+  try {
+    session = await auth.api.getSession({
+      headers: request.headers,
+      query: { disableRefresh: true },
+    });
+  } catch (error) {
+    console.error('Failed to resolve session in middleware', error);
+  }
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-    secureCookie: isHttps,
-  });
-
-  if (!token) {
+  if (!session?.user) {
     const loginUrl = new URL('/login', request.url);
     const redirectPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
     loginUrl.searchParams.set('redirectUrl', redirectPath);

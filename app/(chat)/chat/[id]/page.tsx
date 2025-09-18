@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 
-import { auth } from '@/app/(auth)/auth';
+import { getSession } from '@/lib/auth/session';
 import { Chat } from '@/components/chat';
 import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import { DataStreamHandler } from '@/components/data-stream-handler';
@@ -17,13 +17,13 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     notFound();
   }
 
-  const session = await auth();
+  const session = await getSession();
 
-  if (!session) {
+  if (!session || !session.user) {
     redirect(`/login?redirectUrl=${encodeURIComponent(`/chat/${id}`)}`);
   }
 
-  if (!session.user || session.user.id !== chat.userId) {
+  if (session.user.id !== chat.userId) {
     return notFound();
   }
 

@@ -2,9 +2,8 @@
 
 import { ChevronUp } from 'lucide-react';
 import Image from 'next/image';
-import type { User } from 'next-auth';
-import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
+import { authClient } from '@/lib/auth/auth-client';
 
 import {
   DropdownMenu,
@@ -22,9 +21,11 @@ import { useRouter } from 'next/navigation';
 import { toast } from './toast';
 import { LoaderIcon } from './icons';
 
-export function SidebarUserNav({ user }: { user: User }) {
+export function SidebarUserNav({
+  user,
+}: { user: { email?: string; name?: string } }) {
   const router = useRouter();
-  const { status } = useSession();
+  const session = authClient.useSession();
   const { setTheme, resolvedTheme } = useTheme();
 
   return (
@@ -32,7 +33,7 @@ export function SidebarUserNav({ user }: { user: User }) {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            {status === 'loading' ? (
+            {session.isPending ? (
               <SidebarMenuButton className="h-10 justify-between bg-background data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
                 <div className="flex flex-row gap-2">
                   <div className="size-6 animate-pulse rounded-full bg-zinc-500/30" />
@@ -83,7 +84,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 type="button"
                 className="w-full cursor-pointer"
                 onClick={() => {
-                  if (status === 'loading') {
+                  if (session.isPending) {
                     toast({
                       type: 'error',
                       description:
@@ -93,14 +94,15 @@ export function SidebarUserNav({ user }: { user: User }) {
                     return;
                   }
 
-                  if (status === 'authenticated') {
-                    signOut({ redirectTo: '/' });
+                  if (session.data) {
+                    authClient.signOut();
+                    router.push('/');
                   } else {
                     router.push('/login');
                   }
                 }}
               >
-                {status === 'authenticated' ? 'Sign out' : 'Sign in'}
+                {session.data ? 'Sign out' : 'Sign in'}
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>

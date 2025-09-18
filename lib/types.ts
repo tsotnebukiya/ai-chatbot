@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { getWeather } from './ai/tools/get-weather';
 import type { InferUITool, LanguageModelUsage, UIMessage } from 'ai';
+import type { User as BetterAuthUser } from './auth/auth';
 
 export type DataPart = { type: 'append-message'; message: string };
 
@@ -32,3 +33,14 @@ export interface Attachment {
   url: string;
   contentType: string;
 }
+
+// Define UserType to maintain compatibility with existing code
+export type UserType = 'regular' | 'premium' | 'admin';
+
+// Extend the betterAuth User type to include the custom 'type' property
+export interface ExtendedUser extends BetterAuthUser {
+  type?: UserType;
+}
+
+// Re-export the auth types for backward compatibility
+export type { Session, User } from './auth/auth';

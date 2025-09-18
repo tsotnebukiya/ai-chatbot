@@ -11,7 +11,7 @@ import { Messages } from './messages';
 import { unstable_serialize } from 'swr/infinite';
 import { getChatHistoryPaginationKey } from './sidebar-history';
 import { toast } from './toast';
-import type { Session } from 'next-auth';
+import type { Session } from '@/lib/types';
 import { useSearchParams } from 'next/navigation';
 import { useAutoResume } from '@/hooks/use-auto-resume';
 import { ChatSDKError } from '@/lib/errors';

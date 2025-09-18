@@ -15,27 +15,20 @@ import {
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
-import {
-  user,
-  chat,
-  type User,
-  message,
-  type DBMessage,
-  type Chat,
-  stream,
-} from './schema';
-import { generateHashedPassword } from './utils';
+import * as schema from './schema';
+import type { User, DBMessage, Chat } from './schema';
 import { ChatSDKError } from '../errors';
 import type { LanguageModelV2Usage } from '@ai-sdk/provider';
+import { db } from '.';
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
 // https://authjs.dev/reference/adapter/drizzle
 
-// biome-ignore lint: Forbidden non-null assertion.
-const client = postgres(process.env.POSTGRES_URL!);
-export const db = drizzle(client);
+const { user, chat, message, stream } = schema;
 
+// User management is now handled by betterAuth
+// These functions are kept for backward compatibility but should be removed
 export async function getUser(email: string): Promise<Array<User>> {
   try {
     return await db.select().from(user).where(eq(user.email, email));
@@ -47,14 +40,12 @@ export async function getUser(email: string): Promise<Array<User>> {
   }
 }
 
+// Note: User creation is now handled by betterAuth - this function is deprecated
 export async function createUser(email: string, password: string) {
-  const hashedPassword = generateHashedPassword(password);
-
-  try {
-    return await db.insert(user).values({ email, password: hashedPassword });
-  } catch (error) {
-    throw new ChatSDKError('bad_request:database', 'Failed to create user');
-  }
+  throw new ChatSDKError(
+    'bad_request:auth',
+    'User creation should be done through betterAuth API',
+  );
 }
 
 export async function saveChat({

@@ -7,7 +7,8 @@ import {
   stepCountIs,
   streamText,
 } from 'ai';
-import { auth, type UserType } from '@/app/(auth)/auth';
+import { requireAuth } from '@/lib/auth/session';
+import type { UserType } from '@/lib/types';
 import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
 import {
   createStreamId,
@@ -20,11 +21,9 @@ import {
 } from '@/lib/db/queries';
 import { updateChatLastContextById } from '@/lib/db/queries';
 import { convertToUIMessages, generateUUID } from '@/lib/utils';
-import { generateTitleFromUserMessage } from '../../actions';
+import { generateTitleFromUserMessage } from '@/app/(chat)/actions';
 import { getWeather } from '@/lib/ai/tools/get-weather';
-import { isProductionEnvironment } from '@/lib/constants';
 import { myProvider } from '@/lib/ai/providers';
-import { entitlementsByUserType } from '@/lib/ai/entitlements';
 import { postRequestBodySchema, type PostRequestBody } from './schema';
 import { geolocation } from '@vercel/functions';
 import {
@@ -86,17 +85,12 @@ export async function POST(request: Request) {
     console.log(`🎯 Processing chat: ${id}, model: ${selectedChatModel}`);
 
     const authStart = performance.now();
-    const session = await auth();
+    const session = await requireAuth();
     console.log(
       `🔐 Authentication: ${(performance.now() - authStart).toFixed(2)}ms`,
     );
 
-    if (!session?.user) {
-      console.log('❌ No user session found');
-      return new ChatSDKError('unauthorized:chat').toResponse();
-    }
-
-    const userType: UserType = session.user.type ?? 'regular';
+    const userType: UserType = (session.user as any).type ?? 'regular';
 
     const rateLimitStart = performance.now();
     const messageCount = await getMessageCountByUserId({
@@ -106,11 +100,6 @@ export async function POST(request: Request) {
     console.log(
       `📊 Rate limit check: ${(performance.now() - rateLimitStart).toFixed(2)}ms`,
     );
-
-    if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
-      console.log('🚫 Rate limit exceeded');
-      return new ChatSDKError('rate_limit:chat').toResponse();
-    }
 
     const chatRetrievalStart = performance.now();
     const chat = await getChatById({ id });
@@ -214,7 +203,7 @@ export async function POST(request: Request) {
             getWeather,
           },
           experimental_telemetry: {
-            isEnabled: isProductionEnvironment,
+            isEnabled: process.env.NODE_ENV === 'production',
             functionId: 'stream-text',
           },
           onFinish: ({ usage }) => {
@@ -342,15 +331,10 @@ export async function DELETE(request: Request) {
   console.log(`🎯 Deleting chat: ${id}`);
 
   const authStart = performance.now();
-  const session = await auth();
+  const session = await requireAuth();
   console.log(
     `🔐 Authentication: ${(performance.now() - authStart).toFixed(2)}ms`,
   );
-
-  if (!session?.user) {
-    console.log('❌ No user session found');
-    return new ChatSDKError('unauthorized:chat').toResponse();
-  }
 
   const chatRetrievalStart = performance.now();
   const chat = await getChatById({ id });
