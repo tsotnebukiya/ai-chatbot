@@ -54,6 +54,12 @@ jobs:
             COMMAND="${{ inputs.command }}"
             RESET_BEFORE="${{ inputs.reset_before }}"
 
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export BLOB_READ_WRITE_TOKEN=${{ secrets.BLOB_READ_WRITE_TOKEN }}
+            export BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }}
+            export BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
+            export MISTRAL_API_KEY=${{ secrets.MISTRAL_API_KEY }}
+
             case "$COMMAND" in
               migrate|push|reset) ;;
               *)
