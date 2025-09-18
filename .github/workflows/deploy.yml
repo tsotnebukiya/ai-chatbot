@@ -8,9 +8,18 @@ jobs:
   lint:
     uses: ./.github/workflows/lint.yml
 
+  db-maintenance:
+    needs: lint
+    uses: ./.github/workflows/db-maintenance.yml
+    with:
+      command: migrate
+    secrets: inherit
+
   deploy:
     runs-on: ubuntu-22.04
-    needs: lint
+    needs:
+      - lint
+      - db-maintenance
     concurrency:
       group: deploy-${{ github.sha }}
       cancel-in-progress: true
@@ -72,5 +81,3 @@ jobs:
             docker compose -f docker-compose.prod.yml down
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ai-chatbot:latest
             docker compose -f docker-compose.prod.yml up -d
-            docker compose -f docker-compose.prod.yml exec -T app pnpm db:reset
-            docker compose -f docker-compose.prod.yml exec -T app pnpm db:push

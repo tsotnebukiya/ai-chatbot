@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { auth } from '@/lib/auth/auth';
 import type { Session } from '@/lib/auth/auth';
+import { auth } from '@/lib/auth/auth';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
