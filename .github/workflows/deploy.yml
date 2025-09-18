@@ -3,23 +3,20 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      reset_db:
+        description: 'Run database reset before migrating'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   lint:
     uses: ./.github/workflows/lint.yml
 
-  db-maintenance:
-    needs: lint
-    uses: ./.github/workflows/db-maintenance.yml
-    with:
-      command: migrate
-    secrets: inherit
-
   deploy:
     runs-on: ubuntu-22.04
-    needs:
-      - lint
-      - db-maintenance
+    needs: lint
     concurrency:
       group: deploy-${{ github.sha }}
       cancel-in-progress: true
@@ -65,8 +62,32 @@ jobs:
           target: '/opt/ai-chatbot/'
           timeout: 300s
 
+      - name: Determine database actions
+        id: dbflag
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_MESSAGE: ${{ github.event.head_commit.message || '' }}
+          REF: ${{ github.ref }}
+          RESET_INPUT: ${{ github.event.inputs.reset_db || 'false' }}
+        run: |
+          set -euo pipefail
+
+          run_reset=false
+
+          if [[ "$RESET_INPUT" == "true" ]]; then
+            run_reset=true
+          elif [[ "$EVENT_NAME" == "push" && "$HEAD_MESSAGE" == *"[reset-db]"* ]]; then
+            run_reset=true
+          elif [[ "$REF" == refs/tags/reset-db* ]]; then
+            run_reset=true
+          fi
+
+          echo "run_reset=$run_reset" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to droplet
         uses: appleboy/ssh-action@v1.0.0
+        env:
+          RUN_RESET: ${{ steps.dbflag.outputs.run_reset || 'true' }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
@@ -81,3 +102,9 @@ jobs:
             docker compose -f docker-compose.prod.yml down
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ai-chatbot:latest
             docker compose -f docker-compose.prod.yml up -d
+            if [ "${RUN_RESET}" = "true" ]; then
+              docker compose -f docker-compose.prod.yml exec -T app pnpm db:reset
+            else
+              echo "Skipping database reset (RUN_RESET=false)"
+            fi
+            docker compose -f docker-compose.prod.yml exec -T app pnpm db:migrate
