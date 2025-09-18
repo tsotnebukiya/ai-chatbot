@@ -16,7 +16,7 @@ async function reset() {
   const start = Date.now();
 
   const query = sql`
-		-- Delete all tables
+		-- Delete all tables (including Drizzle migration tracking)
 		DO $$ DECLARE
 		    r RECORD;
 		BEGIN
@@ -38,6 +38,9 @@ async function reset() {
 			END LOOP;
 		END $$;
 
+		-- Explicitly drop Drizzle migration table if it exists
+		DROP TABLE IF EXISTS "__drizzle_migrations" CASCADE;
+		DROP TABLE IF EXISTS "drizzle_migrations" CASCADE;
 	`;
 
   await db.execute(query);
