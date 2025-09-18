@@ -83,11 +83,15 @@ jobs:
           fi
 
           echo "run_reset=$run_reset" >> "$GITHUB_OUTPUT"
+          echo "DEBUG: EVENT_NAME=$EVENT_NAME"
+          echo "DEBUG: HEAD_MESSAGE=$HEAD_MESSAGE"
+          echo "DEBUG: RESET_INPUT=$RESET_INPUT"
+          echo "DEBUG: run_reset=$run_reset"
 
       - name: Deploy to droplet
         uses: appleboy/ssh-action@v1.0.0
         env:
-          RUN_RESET: ${{ steps.dbflag.outputs.run_reset || 'true' }}
+          RUN_RESET: ${{ steps.dbflag.outputs.run_reset }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
@@ -102,9 +106,12 @@ jobs:
             docker compose -f docker-compose.prod.yml down
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ai-chatbot:latest
             docker compose -f docker-compose.prod.yml up -d
+            echo "RUN_RESET value: ${RUN_RESET}"
             if [ "${RUN_RESET}" = "true" ]; then
+              echo "Running database reset..."
               docker compose -f docker-compose.prod.yml exec -T app pnpm db:reset
             else
-              echo "Skipping database reset (RUN_RESET=false)"
+              echo "Skipping database reset (RUN_RESET=${RUN_RESET})"
             fi
+            echo "Running database migration..."
             docker compose -f docker-compose.prod.yml exec -T app pnpm db:migrate
