@@ -52,8 +52,8 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose.prod.yml"
-          target: "/opt/ai-chatbot/"
+          source: 'docker-compose.prod.yml'
+          target: '/opt/ai-chatbot/'
           timeout: 300s
 
       - name: Deploy to droplet
@@ -66,9 +66,9 @@ jobs:
             cd /opt/ai-chatbot
             export BLOB_READ_WRITE_TOKEN=${{ secrets.BLOB_READ_WRITE_TOKEN }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-            export AUTH_SECRET=${{ secrets.AUTH_SECRET }}
+            export BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }}
             export MISTRAL_API_KEY=${{ secrets.MISTRAL_API_KEY }}
-            export NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            export BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
             docker compose -f docker-compose.prod.yml down
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ai-chatbot:latest
             docker compose -f docker-compose.prod.yml up -d

@@ -7,12 +7,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Portfolio project for Mistral AI Software Engineer Internship application**. This chat application demonstrates full-stack development skills using Mistral AI's public API, following their best practices for submission.
 
 ### Mistral Internship Requirements
+
 - **Mandatory**: Complete project submission with GitHub repository
 - **Focus**: Chat application using Next.js with Mistral AI public API
 - **Duration**: Represents 1+ hour of development work
 - **Best Practices**: Detailed README, easy testing, clean code
 
 ### Key Technical Demonstrations
+
 - **Mistral AI Integration**: Direct use of Mistral's chat API
 - **Full-Stack Development**: Next.js 15, TypeScript, PostgreSQL
 - **Real-time Features**: Streaming responses with AI SDK
@@ -20,6 +22,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Production Quality**: Type safety, testing, documentation
 
 ### Testing Strategy
+
 - **Easy to Test**: Clean project structure with clear setup instructions
 - **Type Safety**: TypeScript strict mode for compile-time checks
 - **Database**: Drizzle ORM with schema migrations
@@ -27,6 +30,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Integration Testing**: Demonstrated through chat functionality
 
 ### Portfolio Differentiation
+
 - **Mistral-Specific**: Uses Mistral AI models (not just OpenAI)
 - **Practical Tools**: Real-world utility with Gmail integration
 - **Modern Architecture**: Current best practices in AI application development
@@ -75,7 +79,7 @@ This is a Next.js AI chatbot application built with:
 
 - **Framework**: Next.js 15 with App Router and React Server Components
 - **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: NextAuth.js v5 (beta)
+- **Authentication**: BETTERAUTH
 - **UI**: Radix UI components with Tailwind CSS and shadcn/ui
 - **AI Integration**: Vercel AI SDK with support for OpenAI, Mistral, and XAI providers
 - **Real-time Streaming**: Server-sent events (SSE) for chat streaming
@@ -117,12 +121,14 @@ The application uses a PostgreSQL database with the following main tables:
 
 ### Authentication
 
-Uses NextAuth.js with:
+Uses BetterAuth with:
 
-- Custom authentication providers
-- Guest access mode
-- Session management via SessionProvider
-- Protected routes via middleware
+- **Email/Password Authentication**: Native credential-based login
+- **Social OAuth**: Google and GitHub provider integration
+- **Session Management**: Cookie-based sessions with PostgreSQL storage
+- **Route Protection**: Middleware-based authentication checks
+- **Database Integration**: Drizzle ORM adapter for user/session management
+- **Security Features**: Rate limiting, secure cookies, CSRF protection
 
 ### Chat Streaming
 
@@ -138,8 +144,8 @@ Implements real-time chat streaming using:
 Required environment variables (see .env.local):
 
 - `POSTGRES_URL` - Database connection string
-- `NEXTAUTH_URL` - Application URL for auth
-- `NEXTAUTH_SECRET` - Auth secret
+- `BETTER_AUTH_URL` - Application URL for auth
+- `BETTER_AUTH_URL_SECRET` - Auth secret
 - `BLOB_READ_WRITE_TOKEN` - Vercel Blob storage token
 - AI provider API keys (OpenAI, Mistral, XAI)
 
@@ -152,9 +158,9 @@ Required environment variables (see .env.local):
 - `SSH_KEY` - Private SSH key
 - `POSTGRES_URL` - Production database
 - `BLOB_READ_WRITE_TOKEN` - Vercel Blob token
-- `AUTH_SECRET` - NextAuth secret
+- `BETTER_AUTH_SECRET` - BETTERAUTH secret
 - `MISTRAL_API_KEY` - Mistral AI key
-- `NEXTAUTH_URL` - Production URL
+- `BETTER_AUTH_URL` - Production URL
 
 ## Code Style and Conventions
 

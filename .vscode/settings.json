@@ -1,5 +1,8 @@
 {
   "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
