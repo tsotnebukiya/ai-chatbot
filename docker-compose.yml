@@ -3,7 +3,7 @@ services:
     build:
       context: .
       args:
-        - POSTGRES_URL=${POSTGRES_URL_EXTERNAL}
+        - POSTGRES_URL=${POSTGRES_URL_BUILD}
     ports:
       - '3000:3000'
     environment:
