@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import { sql } from 'drizzle-orm';
-import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 
 config({ path: '.env' });
 
@@ -20,9 +20,15 @@ async function reset() {
 		DO $$ DECLARE
 		    r RECORD;
 		BEGIN
+		    -- Disable triggers to avoid dependency issues
+		    SET session_replication_role = replica;
+		    
 		    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
 		        EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
 		    END LOOP;
+		    
+		    -- Re-enable triggers
+		    SET session_replication_role = DEFAULT;
 		END $$;
 
 		-- Delete enums
@@ -34,13 +40,23 @@ async function reset() {
 				join pg_enum e on t.oid = e.enumtypid
 				join pg_catalog.pg_namespace n ON n.oid = t.typnamespace
 				where n.nspname = current_schema()) LOOP
-				EXECUTE 'DROP TYPE IF EXISTS ' || quote_ident(r.enum_name);
+				EXECUTE 'DROP TYPE IF EXISTS ' || quote_ident(r.enum_name) || ' CASCADE';
 			END LOOP;
 		END $$;
 
-		-- Explicitly drop Drizzle migration table if it exists
+		-- Explicitly drop all possible Drizzle migration tables
 		DROP TABLE IF EXISTS "__drizzle_migrations" CASCADE;
 		DROP TABLE IF EXISTS "drizzle_migrations" CASCADE;
+		DROP TABLE IF EXISTS "__drizzle_migrations__" CASCADE;
+		
+		-- Clean up any remaining functions or procedures
+		DO $$ DECLARE
+		    r RECORD;
+		BEGIN
+		    FOR r IN (SELECT proname, oidvectortypes(proargtypes) as argtypes FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = current_schema()) LOOP
+		        EXECUTE 'DROP FUNCTION IF EXISTS ' || quote_ident(r.proname) || '(' || r.argtypes || ') CASCADE';
+		    END LOOP;
+		END $$;
 	`;
 
   await db.execute(query);

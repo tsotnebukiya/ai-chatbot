@@ -3,6 +3,15 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      reset_database:
+        description: 'Reset database before deployment'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 jobs:
   lint:
@@ -71,4 +80,27 @@ jobs:
             export BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
             docker compose -f docker-compose.prod.yml down
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ai-chatbot:latest
+
+            # Check if reset is requested via commit message or workflow input
+            RESET_DB_COMMIT=$(echo "${{ github.event.head_commit.message }}" | grep -q "\[reset-db\]" && echo "true" || echo "false")
+            RESET_DB_INPUT="${{ github.event.inputs.reset_database }}"
+            RESET_DB=$([ "$RESET_DB_COMMIT" = "true" ] || [ "$RESET_DB_INPUT" = "true" ] && echo "true" || echo "false")
+
+            if [ "$RESET_DB" = "true" ]; then
+              echo "🗑️ Database reset requested"
+              # Start only the database service
+              docker compose -f docker-compose.prod.yml up -d database
+              sleep 10
+              # Run reset inside the app container
+              docker compose -f docker-compose.prod.yml run --rm app npm run db:reset
+            fi
+
+            # Start all services
             docker compose -f docker-compose.prod.yml up -d
+
+            # Wait for services to be ready
+            sleep 15
+
+            # Run migrations
+            echo "🔄 Running database migrations..."
+            docker compose -f docker-compose.prod.yml exec app npm run db:migrate
