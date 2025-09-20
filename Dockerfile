@@ -13,6 +13,11 @@ RUN bun install --frozen-lockfile
 # Stage 2: Build the application
 FROM base AS builder
 WORKDIR /app
+
+# Build arguments for database connection during build
+ARG POSTGRES_URL
+ENV POSTGRES_URL=${POSTGRES_URL}
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN bun run build
