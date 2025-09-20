@@ -3,6 +3,10 @@ FROM oven/bun:alpine AS base
 # Stage 1: Install dependencies
 FROM base AS deps
 WORKDIR /app
+
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++ 
+
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
