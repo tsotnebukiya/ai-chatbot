@@ -109,6 +109,7 @@ echo "BLOB_READ_WRITE_TOKEN=$BLOB_READ_WRITE_TOKEN" >> "$APP_DIR/.env"
 echo "MISTRAL_API_KEY=$MISTRAL_API_KEY" >> "$APP_DIR/.env"
 echo "BETTER_AUTH_SECRET=$BETTER_AUTH_SECRET" >> "$APP_DIR/.env"
 echo "BETTER_AUTH_URL=$BETTER_AUTH_URL" >> "$APP_DIR/.env"
+echo "POSTGRES_URL_BUILD=$POSTGRES_URL_BUILD" >> "$APP_DIR/.env"
 
 # Build and run the Docker containers from the app directory (~/myapp)
 cd $APP_DIR
