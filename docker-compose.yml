@@ -1,10 +1,16 @@
 services:
   web:
-    build: .
+    build:
+      context: .
+      args:
+        - POSTGRES_URL=${POSTGRES_URL_EXTERNAL}
     ports:
       - '3000:3000'
     environment:
       - NODE_ENV=production
+      - POSTGRES_URL=${POSTGRES_URL}
+    env_file:
+      - .env
     depends_on:
       - db
       - redis
