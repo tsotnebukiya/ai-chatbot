@@ -96,6 +96,7 @@ REDIS_URL="redis://redis:6379"
 
 # Export build variables so Docker can access them
 export POSTGRES_URL_BUILD="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB"
+echo "DEBUG: POSTGRES_URL_BUILD = $POSTGRES_URL_BUILD"
 
 # Create the .env file inside the app directory (~/myapp/.env)
 echo "POSTGRES_USER=$POSTGRES_USER" > "$APP_DIR/.env"
