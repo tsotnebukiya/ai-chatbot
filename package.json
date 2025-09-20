@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build",
+    "build": "tsx lib/db/migrate && next build",
     "start": "next start",
     "lint": "biome lint --write --unsafe",
     "lint:fix": "biome lint --write --unsafe && biome format --write",
@@ -15,7 +15,7 @@
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
     "db:reset": "npx tsx lib/db/reset.ts",
-    "test": "export PLAYWRIGHT=True && pnpm exec playwright test"
+    "test": "export PLAYWRIGHT=True && bun run playwright test"
   },
   "dependencies": {
     "@ai-sdk/mistral": "^2.0.14",
@@ -127,5 +127,5 @@
     "tsx": "^4.19.1",
     "typescript": "^5.6.3"
   },
-  "packageManager": "pnpm@9.12.3"
+  "packageManager": "bun@1.2.17"
 }

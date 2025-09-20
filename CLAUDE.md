@@ -40,27 +40,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Build and Development
 
-- `pnpm dev` - Start development server with turbo mode
-- `pnpm build` - Build the production application
-- `pnpm start` - Start production server
-- `pnpm lint` - Run Biome linter with auto-fix
-- `pnpm lint:fix` - Run Biome linter and formatter
-- `pnpm format` - Run Biome formatter
+- `bun dev` - Start development server with turbo mode
+- `bun build` - Build the production application
+- `bun start` - Start production server
+- `bun lint` - Run Biome linter with auto-fix
+- `bun lint:fix` - Run Biome linter and formatter
+- `bun format` - Run Biome formatter
 - `npx tsc` - Run TypeScript type checking
 
 ### Database Operations
 
-- `pnpm db:generate` - Generate Drizzle migrations
-- `pnpm db:migrate` - Run database migrations
-- `pnpm db:studio` - Open Drizzle studio for database inspection
-- `pnpm db:push` - Push schema changes to database
-- `pnpm db:pull` - Pull schema from database
-- `pnpm db:check` - Check migration status
-- `pnpm db:up` - Update database schema
+- `bun db:generate` - Generate Drizzle migrations
+- `bun db:migrate` - Run database migrations
+- `bun db:studio` - Open Drizzle studio for database inspection
+- `bun db:push` - Push schema changes to database
+- `bun db:pull` - Pull schema from database
+- `bun db:check` - Check migration status
+- `bun db:up` - Update database schema
 
 ### Testing
 
-- `pnpm test` - Run Playwright tests (requires PLAYWRIGHT=True)
+- `dun test` - Run Playwright tests (requires PLAYWRIGHT=True)
 
 ### Docker Development
 
@@ -180,7 +180,7 @@ Required environment variables (see .env.local):
 
 ## Important Notes
 
-- The project uses `pnpm` as the package manager
-- Database migrations use `pnpm db:push`
+- The project uses `bun` as the package manager
+- Database migrations use `bun db:push`
 - Production deploys to Digital Ocean via GitHub Actions
 - **Always run `npx tsc` after completing tasks to ensure TypeScript type safety**
