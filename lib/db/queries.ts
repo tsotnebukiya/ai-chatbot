@@ -13,11 +13,11 @@ import {
   type SQL,
 } from 'drizzle-orm';
 
-import * as schema from './schema';
-import type { User, DBMessage, Chat } from './schema';
-import { ChatSDKError } from '../errors';
 import type { LanguageModelV2Usage } from '@ai-sdk/provider';
 import { db } from '.';
+import { ChatSDKError } from '../errors';
+import type { Chat, DBMessage, User } from './schema';
+import * as schema from './schema';
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
