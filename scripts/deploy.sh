@@ -119,22 +119,5 @@ echo "POSTGRES_URL_BUILD=$POSTGRES_URL_BUILD" >> "$APP_DIR/.env"
 cd $APP_DIR
 sudo docker-compose up --build -d
 
-# Wait for database to be ready
-echo "Waiting for database to be ready..."
-until sudo docker-compose exec db pg_isready -U $POSTGRES_USER -d $POSTGRES_DB; do
-  echo "Database is unavailable - sleeping"
-  sleep 2
-done
-
-# Run database migrations
-echo "Running database migrations..."
-sudo docker-compose exec web bun db:push
-
-# Check if Docker Compose started correctly
-if ! sudo docker-compose ps | grep "Up"; then
-  echo "Docker containers failed to start. Check logs with 'docker-compose logs'."
-  exit 1
-fi
-
 # Output final message
 echo "Deployment complete. Your Next.js app, Redis service, and PostgreSQL database are now running."
