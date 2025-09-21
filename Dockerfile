@@ -18,6 +18,9 @@ WORKDIR /app
 ARG POSTGRES_URL
 ENV POSTGRES_URL=${POSTGRES_URL}
 
+ARG BETTER_AUTH_URL
+ENV BETTER_AUTH_URL=${BETTER_AUTH_URL}
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN bun run build

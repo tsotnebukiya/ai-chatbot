@@ -4,6 +4,7 @@ services:
       context: .
       args:
         - POSTGRES_URL=${POSTGRES_URL_BUILD}
+        - BETTER_AUTH_URL=${BETTER_AUTH_URL}
     ports:
       - '3000:3000'
     environment:
