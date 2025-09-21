@@ -37,7 +37,13 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!session?.user) {
-    const loginUrl = new URL('/login', request.url);
+    let loginUrl: URL;
+    try {
+      loginUrl = new URL('/login', request.url);
+    } catch {
+      // Fallback for build-time or invalid request context
+      loginUrl = new URL('/login', 'http://localhost:3000');
+    }
     const redirectPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
     loginUrl.searchParams.set('redirectUrl', redirectPath);
 
