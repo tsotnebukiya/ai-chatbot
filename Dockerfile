@@ -33,5 +33,11 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+# Copy migration files for database setup
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/lib/db ./lib/db
+COPY --from=deps /app/node_modules/.bin/drizzle-kit ./node_modules/.bin/drizzle-kit
+COPY --from=deps /app/node_modules/drizzle-kit ./node_modules/drizzle-kit
+
 EXPOSE 3000
 CMD ["bun", "run", "server.js"]

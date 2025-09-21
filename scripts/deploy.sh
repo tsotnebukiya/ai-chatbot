@@ -21,8 +21,7 @@ PUBLIC_IP=$(curl -s https://ipinfo.io/ip 2>/dev/null || curl -s https://api.ipif
 BETTER_AUTH_URL="http://${PUBLIC_IP}:3000"
 echo "Using BETTER_AUTH_URL: $BETTER_AUTH_URL"
 
-BLOB_READ_WRITE_TOKEN=${BLOB_READ_WRITE_TOKEN:-""}
-MISTRAL_API_KEY=${MISTRAL_API_KEY:-"your-mistral-key-here"}
+# Use values from .env or let them be unset
 
 # Script Vars
 REPO_URL="https://github.com/tsotnebukiya/ai-chatbot"
@@ -105,8 +104,13 @@ echo "POSTGRES_DB=$POSTGRES_DB" >> "$APP_DIR/.env"
 echo "POSTGRES_URL=$POSTGRES_URL" >> "$APP_DIR/.env"
 echo "POSTGRES_URL_EXTERNAL=$POSTGRES_URL_EXTERNAL" >> "$APP_DIR/.env"
 echo "REDIS_URL=$REDIS_URL" >> "$APP_DIR/.env"
-echo "BLOB_READ_WRITE_TOKEN=$BLOB_READ_WRITE_TOKEN" >> "$APP_DIR/.env"
-echo "MISTRAL_API_KEY=$MISTRAL_API_KEY" >> "$APP_DIR/.env"
+# Only write BLOB_READ_WRITE_TOKEN and MISTRAL_API_KEY if they exist
+if [ -n "${BLOB_READ_WRITE_TOKEN:-}" ]; then
+  echo "BLOB_READ_WRITE_TOKEN=$BLOB_READ_WRITE_TOKEN" >> "$APP_DIR/.env"
+fi
+if [ -n "${MISTRAL_API_KEY:-}" ]; then
+  echo "MISTRAL_API_KEY=$MISTRAL_API_KEY" >> "$APP_DIR/.env"
+fi
 echo "BETTER_AUTH_SECRET=$BETTER_AUTH_SECRET" >> "$APP_DIR/.env"
 echo "BETTER_AUTH_URL=$BETTER_AUTH_URL" >> "$APP_DIR/.env"
 echo "POSTGRES_URL_BUILD=$POSTGRES_URL_BUILD" >> "$APP_DIR/.env"
@@ -114,6 +118,17 @@ echo "POSTGRES_URL_BUILD=$POSTGRES_URL_BUILD" >> "$APP_DIR/.env"
 # Build and run the Docker containers from the app directory (~/myapp)
 cd $APP_DIR
 sudo docker-compose up --build -d
+
+# Wait for database to be ready
+echo "Waiting for database to be ready..."
+until sudo docker-compose exec db pg_isready -U $POSTGRES_USER -d $POSTGRES_DB; do
+  echo "Database is unavailable - sleeping"
+  sleep 2
+done
+
+# Run database migrations
+echo "Running database migrations..."
+sudo docker-compose exec web bun db:push
 
 # Check if Docker Compose started correctly
 if ! sudo docker-compose ps | grep "Up"; then
