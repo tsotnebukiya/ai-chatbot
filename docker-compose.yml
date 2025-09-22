@@ -4,9 +4,10 @@ services:
       context: .
       dockerfile: Dockerfile.migration
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
-      - POSTGRES_URL=${POSTGRES_URL_BUILD}
+      - POSTGRES_URL=${POSTGRES_URL}
     env_file:
       - .env
     networks:
