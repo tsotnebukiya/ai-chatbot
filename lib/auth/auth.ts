@@ -35,13 +35,13 @@ export const auth = betterAuth({
     window: 60, // 1 minute
     max: 100, // 100 requests per window
   },
-  advanced: {
-    useSecureCookies: process.env.NODE_ENV === 'production',
-    cookiePrefix: 'better-auth',
-    crossSubDomainCookies: {
-      enabled: false,
-    },
-  },
+  // advanced: {
+  //   useSecureCookies: process.env.NODE_ENV === 'production',
+  //   cookiePrefix: 'better-auth',
+  //   crossSubDomainCookies: {
+  //     enabled: false,
+  //   },
+  // },
 });
 
 export type Session = typeof auth.$Infer.Session;
