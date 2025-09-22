@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Source local .env file if it exists (for copying secrets to production)
-if [ -f "$(dirname "$0")/../.env" ]; then
-  echo "Loading environment variables from local .env file..."
-  source "$(dirname "$0")/../.env"
-  echo "Loaded variables"
-fi
 
 # Env Vars (with fallbacks if not loaded from .env)
 POSTGRES_USER="myuser"
@@ -14,6 +8,10 @@ POSTGRES_DB="mydatabase"
 
 # Use values from .env or fallback to defaults
 BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-$(openssl rand -base64 32)}
+
+# Hardcoded API keys for production
+BLOB_READ_WRITE_TOKEN="vercel_blob_rw_C6BhzHkypxiy6niv_eBDTJCzuqlBsPhGLDODt9Ag5ORnKb6"
+MISTRAL_API_KEY="nPCMsx6CfLWUoFfnzDAE6G1CSaFBEqtz"
 
 # Auto-detect public IP for BETTER_AUTH_URL
 echo "Auto-detecting public IP address..."
