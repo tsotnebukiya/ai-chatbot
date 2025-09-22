@@ -85,9 +85,6 @@ fi
 # For Docker internal communication ("db" is the name of Postgres container)
 POSTGRES_URL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$POSTGRES_DB"
 
-# For external tools (like Drizzle Studio)
-POSTGRES_URL_EXTERNAL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB"
-
 # For Docker internal communication ("redis" is the name of Redis container)
 REDIS_URL="redis://redis:6379"
 
@@ -100,7 +97,6 @@ echo "POSTGRES_USER=$POSTGRES_USER" > "$APP_DIR/.env"
 echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> "$APP_DIR/.env"
 echo "POSTGRES_DB=$POSTGRES_DB" >> "$APP_DIR/.env"
 echo "POSTGRES_URL=$POSTGRES_URL" >> "$APP_DIR/.env"
-echo "POSTGRES_URL_EXTERNAL=$POSTGRES_URL_EXTERNAL" >> "$APP_DIR/.env"
 echo "REDIS_URL=$REDIS_URL" >> "$APP_DIR/.env"
 # Only write BLOB_READ_WRITE_TOKEN and MISTRAL_API_KEY if they exist
 if [ -n "${BLOB_READ_WRITE_TOKEN:-}" ]; then

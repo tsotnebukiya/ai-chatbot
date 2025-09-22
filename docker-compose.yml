@@ -6,7 +6,7 @@ services:
     depends_on:
       - db
     environment:
-      - POSTGRES_URL=${POSTGRES_URL}
+      - POSTGRES_URL=${POSTGRES_URL_BUILD}
     env_file:
       - .env
     networks:
