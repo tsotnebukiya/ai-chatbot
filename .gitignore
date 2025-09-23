@@ -44,4 +44,4 @@ yarn-error.log*
 /playwright/*
 
 # AI
-CLAUDE.MD
+CLAUDE.md

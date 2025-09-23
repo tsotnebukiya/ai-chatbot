@@ -68,7 +68,7 @@ echo "Creating .env ..."
 PUBLIC_IP=$(curl -s https://ipinfo.io/ip || curl -s https://api.ipify.org || echo "localhost")
 
 POSTGRES_USER="myuser"
-POSTGRES_PASSWORD="$(openssl rand -base64 12)"
+POSTGRES_PASSWORD="$(openssl rand -hex 16)"
 POSTGRES_DB="mydatabase"
 
 # Prompt for external secrets (silent input for safety)
