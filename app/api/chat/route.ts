@@ -1,39 +1,27 @@
-import {
-  convertToModelMessages,
-  createUIMessageStream,
-  JsonToSseTransformStream,
-  type LanguageModelUsage,
-  smoothStream,
-  stepCountIs,
-  streamText,
-} from 'ai';
+import { generateTitleFromUserMessage } from '@/app/(chat)/actions';
+import { createChatStream } from '@/lib/ai/agent';
+import type { ChatModel } from '@/lib/ai/models';
+import type { RequestHints } from '@/lib/ai/prompts';
 import { requireAuth } from '@/lib/auth/session';
-import type { UserType } from '@/lib/types';
-import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
 import {
   createStreamId,
   deleteChatById,
   getChatById,
-  getMessageCountByUserId,
   getMessagesByChatId,
   saveChat,
   saveMessages,
 } from '@/lib/db/queries';
-import { updateChatLastContextById } from '@/lib/db/queries';
+import { ChatSDKError } from '@/lib/errors';
+import type { ChatMessage } from '@/lib/types';
 import { convertToUIMessages, generateUUID } from '@/lib/utils';
-import { generateTitleFromUserMessage } from '@/app/(chat)/actions';
-import { getWeather } from '@/lib/ai/tools/get-weather';
-import { myProvider } from '@/lib/ai/providers';
-import { postRequestBodySchema, type PostRequestBody } from './schema';
 import { geolocation } from '@vercel/functions';
+import { JsonToSseTransformStream } from 'ai';
+import { after } from 'next/server';
 import {
   createResumableStreamContext,
   type ResumableStreamContext,
 } from 'resumable-stream';
-import { after } from 'next/server';
-import { ChatSDKError } from '@/lib/errors';
-import type { ChatMessage } from '@/lib/types';
-import type { ChatModel } from '@/lib/ai/models';
+import { type PostRequestBody, postRequestBodySchema } from './schema';
 
 export const maxDuration = 60;
 
@@ -54,18 +42,11 @@ export function getStreamContext() {
 }
 
 export async function POST(request: Request) {
-  const startTime = performance.now();
-  console.log('🚀 Chat API POST request started');
-
   let requestBody: PostRequestBody;
 
   try {
-    const parseStart = performance.now();
     const json = await request.json();
     requestBody = postRequestBodySchema.parse(json);
-    console.log(
-      `📝 Request parsing: ${(performance.now() - parseStart).toFixed(2)}ms`,
-    );
   } catch (error) {
     console.log('❌ Request parsing failed', error);
     return new ChatSDKError('bad_request:api').toResponse();
@@ -76,55 +57,25 @@ export async function POST(request: Request) {
       id,
       message,
       selectedChatModel,
+      enabledTools,
     }: {
       id: string;
       message: ChatMessage;
       selectedChatModel: ChatModel['id'];
+      enabledTools: string[];
     } = requestBody;
 
-    console.log(`🎯 Processing chat: ${id}, model: ${selectedChatModel}`);
-
-    const authStart = performance.now();
     const session = await requireAuth();
-    console.log(
-      `🔐 Authentication: ${(performance.now() - authStart).toFixed(2)}ms`,
-    );
-
-    const userType: UserType = (session.user as any).type ?? 'regular';
-
-    const rateLimitStart = performance.now();
-    const messageCount = await getMessageCountByUserId({
-      id: session.user.id,
-      differenceInHours: 24,
-    });
-    console.log(
-      `📊 Rate limit check: ${(performance.now() - rateLimitStart).toFixed(2)}ms`,
-    );
-
-    const chatRetrievalStart = performance.now();
     const chat = await getChatById({ id });
-    console.log(
-      `🗃️ Chat retrieval: ${(performance.now() - chatRetrievalStart).toFixed(2)}ms`,
-    );
-
     if (!chat) {
-      const titleStart = performance.now();
       const title = await generateTitleFromUserMessage({
         message,
       });
-      console.log(
-        `📝 Title generation: ${(performance.now() - titleStart).toFixed(2)}ms`,
-      );
-
-      const saveChatStart = performance.now();
       await saveChat({
         id,
         userId: session.user.id,
         title,
       });
-      console.log(
-        `💾 Chat creation: ${(performance.now() - saveChatStart).toFixed(2)}ms`,
-      );
     } else {
       if (chat.userId !== session.user.id) {
         console.log('❌ User not authorized for this chat');
@@ -132,23 +83,9 @@ export async function POST(request: Request) {
       }
     }
 
-    const messageHistoryStart = performance.now();
     const messagesFromDb = await getMessagesByChatId({ id });
-    console.log(
-      `📜 Message history retrieval: ${(performance.now() - messageHistoryStart).toFixed(2)}ms, ${messagesFromDb.length} messages`,
-    );
-
-    const messageProcessingStart = performance.now();
     const uiMessages = [...convertToUIMessages(messagesFromDb), message];
-    console.log(
-      `🔄 Message processing: ${(performance.now() - messageProcessingStart).toFixed(2)}ms`,
-    );
-
-    const geoStart = performance.now();
     const { longitude, latitude, city, country } = geolocation(request);
-    console.log(
-      `🌍 Geolocation: ${(performance.now() - geoStart).toFixed(2)}ms`,
-    );
 
     const requestHints: RequestHints = {
       longitude,
@@ -157,7 +94,6 @@ export async function POST(request: Request) {
       country,
     };
 
-    const saveMessageStart = performance.now();
     await saveMessages({
       messages: [
         {
@@ -170,101 +106,17 @@ export async function POST(request: Request) {
         },
       ],
     });
-    console.log(
-      `💾 User message save: ${(performance.now() - saveMessageStart).toFixed(2)}ms`,
-    );
 
-    const streamSetupStart = performance.now();
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
-    console.log(
-      `🔄 Stream setup: ${(performance.now() - streamSetupStart).toFixed(2)}ms`,
-    );
 
-    let finalUsage: LanguageModelUsage | undefined;
-
-    const aiResponseStart = performance.now();
-    console.log(
-      `🤖 Starting AI response generation with model: ${selectedChatModel}`,
-    );
-
-    const stream = createUIMessageStream({
-      execute: ({ writer: dataStream }) => {
-        const streamTextStart = performance.now();
-        const result = streamText({
-          model: myProvider.languageModel(selectedChatModel),
-          system: systemPrompt({ selectedChatModel, requestHints }),
-          messages: convertToModelMessages(uiMessages),
-          stopWhen: stepCountIs(5),
-          experimental_activeTools:
-            selectedChatModel === 'chat-model-reasoning' ? [] : ['getWeather'],
-          experimental_transform: smoothStream({ chunking: 'word' }),
-          tools: {
-            getWeather,
-          },
-          experimental_telemetry: {
-            isEnabled: process.env.NODE_ENV === 'production',
-            functionId: 'stream-text',
-          },
-          onFinish: ({ usage }) => {
-            finalUsage = usage;
-            dataStream.write({ type: 'data-usage', data: usage });
-            console.log(`📊 AI usage: ${JSON.stringify(usage)}`);
-          },
-        });
-
-        result.consumeStream();
-
-        dataStream.merge(
-          result.toUIMessageStream({
-            sendReasoning: true,
-          }),
-        );
-        console.log(
-          `🤖 StreamText execution: ${(performance.now() - streamTextStart).toFixed(2)}ms`,
-        );
-      },
-      generateId: generateUUID,
-      onFinish: async ({ messages }) => {
-        const saveAssistantStart = performance.now();
-        await saveMessages({
-          messages: messages.map((message) => ({
-            id: message.id,
-            role: message.role,
-            parts: message.parts,
-            createdAt: new Date(),
-            attachments: [],
-            chatId: id,
-          })),
-        });
-        console.log(
-          `💾 Assistant message save: ${(performance.now() - saveAssistantStart).toFixed(2)}ms`,
-        );
-
-        if (finalUsage) {
-          try {
-            const usagePersistStart = performance.now();
-            await updateChatLastContextById({
-              chatId: id,
-              context: finalUsage,
-            });
-            console.log(
-              `💾 Usage persistence: ${(performance.now() - usagePersistStart).toFixed(2)}ms`,
-            );
-          } catch (err) {
-            console.warn('Unable to persist last usage for chat', id, err);
-          }
-        }
-      },
-      onError: () => {
-        return 'Oops, an error occurred!';
-      },
+    const stream = createChatStream({
+      chatId: id,
+      enabledTools,
+      messages: uiMessages,
+      requestHints,
+      selectedChatModel,
     });
-    console.log(
-      `🤖 AI response generation setup: ${(performance.now() - aiResponseStart).toFixed(2)}ms`,
-    );
-
-    const responseStart = performance.now();
     const streamContext = getStreamContext();
 
     let response: Response;
@@ -280,22 +132,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const totalTime = performance.now() - startTime;
-    console.log(
-      `📤 Response streaming: ${(performance.now() - responseStart).toFixed(2)}ms`,
-    );
-    console.log(`✅ Total request time: ${totalTime.toFixed(2)}ms`);
-    console.log('=== Chat API Performance Summary ===');
-    console.log(`Chat ID: ${id}`);
-    console.log(`Model: ${selectedChatModel}`);
-    console.log(`Messages in history: ${messagesFromDb.length}`);
-    console.log(`Total duration: ${totalTime.toFixed(2)}ms`);
-    console.log('====================================');
-
     return response;
   } catch (error) {
-    const errorTime = performance.now() - startTime;
-    console.log(`❌ Error occurred after: ${errorTime.toFixed(2)}ms`);
     console.error('Unhandled error in chat API:', error);
 
     if (error instanceof ChatSDKError) {
@@ -313,52 +151,22 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const startTime = performance.now();
-  console.log('🗑️ Chat API DELETE request started');
-
-  const parseStart = performance.now();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
-  console.log(
-    `📝 Request parsing: ${(performance.now() - parseStart).toFixed(2)}ms`,
-  );
 
   if (!id) {
-    console.log('❌ No chat ID provided');
     return new ChatSDKError('bad_request:api').toResponse();
   }
 
-  console.log(`🎯 Deleting chat: ${id}`);
-
-  const authStart = performance.now();
   const session = await requireAuth();
-  console.log(
-    `🔐 Authentication: ${(performance.now() - authStart).toFixed(2)}ms`,
-  );
 
-  const chatRetrievalStart = performance.now();
   const chat = await getChatById({ id });
-  console.log(
-    `🗃️ Chat retrieval: ${(performance.now() - chatRetrievalStart).toFixed(2)}ms`,
-  );
 
   if (chat?.userId !== session.user.id) {
     console.log('❌ User not authorized for this chat');
     return new ChatSDKError('forbidden:chat').toResponse();
   }
-
-  const deletionStart = performance.now();
   const deletedChat = await deleteChatById({ id });
-  console.log(
-    `🗑️ Chat deletion: ${(performance.now() - deletionStart).toFixed(2)}ms`,
-  );
-
-  const totalTime = performance.now() - startTime;
-  console.log(`✅ DELETE request completed in: ${totalTime.toFixed(2)}ms`);
-  console.log('=== Chat API DELETE Performance Summary ===');
-  console.log(`Chat ID: ${id}`);
-  console.log(`Total duration: ${totalTime.toFixed(2)}ms`);
-  console.log('===========================================');
 
   return Response.json(deletedChat, { status: 200 });
 }

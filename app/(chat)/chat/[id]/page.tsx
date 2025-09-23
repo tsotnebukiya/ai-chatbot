@@ -7,6 +7,7 @@ import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { convertToUIMessages } from '@/lib/utils';
+import { getChatToolsFromCookie } from '@/app/(chat)/actions';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -35,6 +36,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
   const cookieStore = await cookies();
   const chatModelFromCookie = cookieStore.get('chat-model');
+  const initialEnabledTools = await getChatToolsFromCookie(id);
 
   if (!chatModelFromCookie) {
     return (
@@ -43,6 +45,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           id={chat.id}
           initialMessages={uiMessages}
           initialChatModel={DEFAULT_CHAT_MODEL}
+          initialEnabledTools={initialEnabledTools}
           isReadonly={session?.user?.id !== chat.userId}
           session={session}
           autoResume={true}
@@ -59,6 +62,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         id={chat.id}
         initialMessages={uiMessages}
         initialChatModel={chatModelFromCookie.value}
+        initialEnabledTools={initialEnabledTools}
         isReadonly={session?.user?.id !== chat.userId}
         session={session}
         autoResume={true}

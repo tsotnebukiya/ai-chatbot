@@ -1,16 +1,45 @@
 'use server';
 
-import { generateText, type UIMessage } from 'ai';
-import { cookies } from 'next/headers';
+import { myProvider } from '@/lib/ai/providers';
 import {
   deleteMessagesByChatIdAfterTimestamp,
   getMessageById,
 } from '@/lib/db/queries';
-import { myProvider } from '@/lib/ai/providers';
+import { generateText, type UIMessage } from 'ai';
+import { cookies } from 'next/headers';
 
 export async function saveChatModelAsCookie(model: string) {
   const cookieStore = await cookies();
   cookieStore.set('chat-model', model);
+}
+
+export async function saveChatToolsAsCookie(chatId: string, tools: string[]) {
+  const cookieStore = await cookies();
+  const currentCookie = cookieStore.get('chat-tools')?.value || '{}';
+
+  try {
+    const currentTools = JSON.parse(currentCookie);
+    currentTools[chatId] = tools;
+    cookieStore.set('chat-tools', JSON.stringify(currentTools));
+  } catch (_error) {
+    // If parsing fails, create new object
+    const newTools = { [chatId]: tools };
+    cookieStore.set('chat-tools', JSON.stringify(newTools));
+  }
+}
+
+export async function getChatToolsFromCookie(
+  chatId: string,
+): Promise<string[]> {
+  const cookieStore = await cookies();
+  const cookieValue = cookieStore.get('chat-tools')?.value || '{}';
+
+  try {
+    const tools = JSON.parse(cookieValue);
+    return tools[chatId] || [];
+  } catch (_error) {
+    return [];
+  }
 }
 
 export async function generateTitleFromUserMessage({

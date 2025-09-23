@@ -1,22 +1,6 @@
 'use client';
 
-import { DefaultChatTransport, type LanguageModelUsage } from 'ai';
-import { useChat } from '@ai-sdk/react';
-import { useEffect, useState } from 'react';
-import { useSWRConfig } from 'swr';
 import { ChatHeader } from '@/components/chat-header';
-import { fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
-import { MultimodalInput } from './multimodal-input';
-import { Messages } from './messages';
-import { unstable_serialize } from 'swr/infinite';
-import { getChatHistoryPaginationKey } from './sidebar-history';
-import { toast } from './toast';
-import type { Session } from '@/lib/types';
-import { useSearchParams } from 'next/navigation';
-import { useAutoResume } from '@/hooks/use-auto-resume';
-import { ChatSDKError } from '@/lib/errors';
-import type { Attachment, ChatMessage } from '@/lib/types';
-import { useDataStream } from './data-stream-provider';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,11 +11,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useAutoResume } from '@/hooks/use-auto-resume';
+import { ChatSDKError } from '@/lib/errors';
+import type { Attachment, ChatMessage, Session } from '@/lib/types';
+import { fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport, type LanguageModelUsage } from 'ai';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { saveChatToolsAsCookie } from '@/app/(chat)/actions';
+import { useSWRConfig } from 'swr';
+import { unstable_serialize } from 'swr/infinite';
+import { useDataStream } from './data-stream-provider';
+import { Messages } from './messages';
+import { MultimodalInput } from './multimodal-input';
+import { getChatHistoryPaginationKey } from './sidebar-history';
+import { toast } from './toast';
 
 export function Chat({
   id,
   initialMessages,
   initialChatModel,
+  initialEnabledTools,
   isReadonly,
   session,
   autoResume,
@@ -40,6 +41,7 @@ export function Chat({
   id: string;
   initialMessages: ChatMessage[];
   initialChatModel: string;
+  initialEnabledTools?: string[];
   isReadonly: boolean;
   session: Session;
   autoResume: boolean;
@@ -53,7 +55,8 @@ export function Chat({
     initialLastContext,
   );
   const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
-
+  const [enabledTools, setEnabledTools] = useState<string[]>(initialEnabledTools || ['weather']);
+  const enabledToolsRef = useRef(enabledTools); // Create ref
   const {
     messages,
     setMessages,
@@ -76,6 +79,7 @@ export function Chat({
             id,
             message: messages.at(-1),
             selectedChatModel: initialChatModel,
+            enabledTools: enabledToolsRef.current,
             ...body,
           },
         };
@@ -111,6 +115,10 @@ export function Chat({
   const query = searchParams.get('query');
 
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
+
+  useEffect(() => {
+    enabledToolsRef.current = enabledTools;
+  }, [enabledTools]);
 
   useEffect(() => {
     if (query && !hasAppendedQuery) {
@@ -164,6 +172,11 @@ export function Chat({
               sendMessage={sendMessage}
               selectedModelId={initialChatModel}
               usage={usage}
+              enabledTools={enabledTools}
+              onEnabledToolsChange={(tools) => {
+                setEnabledTools(tools);
+                saveChatToolsAsCookie(id, tools);
+              }}
             />
           )}
         </div>

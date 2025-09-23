@@ -5,12 +5,11 @@ import {
   memo,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type ChangeEvent,
   type Dispatch,
-  type SetStateAction,
+  type SetStateAction
 } from 'react';
 import { toast } from 'sonner';
 import { useLocalStorage, useWindowSize } from 'usehooks-ts';
@@ -19,7 +18,6 @@ import { saveChatModelAsCookie } from '@/app/(chat)/actions';
 import { SelectItem } from '@/components/ui/select';
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
 import { chatModels } from '@/lib/ai/models';
-import { myProvider } from '@/lib/ai/providers';
 import type { Attachment, ChatMessage } from '@/lib/types';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import * as SelectPrimitive from '@radix-ui/react-select';
@@ -27,7 +25,6 @@ import equal from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import { startTransition } from 'react';
-import { getContextWindow, normalizeUsage } from 'tokenlens';
 import {
   PromptInput,
   PromptInputModelSelect,
@@ -46,6 +43,7 @@ import {
 } from './icons';
 import { PreviewAttachment } from './preview-attachment';
 import { SuggestedActions } from './suggested-actions';
+import { ToolSelector } from './toolbox/tool-selector';
 import { Button } from './ui/button';
 
 function PureMultimodalInput({
@@ -62,6 +60,8 @@ function PureMultimodalInput({
   className,
   selectedModelId,
   usage,
+  enabledTools,
+  onEnabledToolsChange,
 }: {
   chatId: string;
   input: string;
@@ -76,6 +76,8 @@ function PureMultimodalInput({
   className?: string;
   selectedModelId: string;
   usage?: LanguageModelUsage;
+  enabledTools: string[];
+  onEnabledToolsChange: (tools: string[]) => void;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -154,13 +156,13 @@ function PureMultimodalInput({
       textareaRef.current?.focus();
     }
   }, [
-    input,
-    setInput,
-    attachments,
-    sendMessage,
-    setAttachments,
-    setLocalStorageInput,
-    width,
+    input, 
+    setInput, 
+    attachments, 
+    sendMessage, 
+    setAttachments, 
+    setLocalStorageInput, 
+    width, 
     chatId,
   ]);
 
@@ -191,34 +193,6 @@ function PureMultimodalInput({
     }
   };
 
-  const modelResolver = useMemo(() => {
-    return myProvider.languageModel(selectedModelId);
-  }, [selectedModelId]);
-
-  const contextMax = useMemo(() => {
-    // Resolve from selected model; stable across chunks.
-    const cw = getContextWindow(modelResolver.modelId);
-    return cw.combinedMax ?? cw.inputMax ?? 0;
-  }, [modelResolver]);
-
-  const usedTokens = useMemo(() => {
-    // Prefer explicit usage data part captured via onData
-    if (!usage) return 0; // update only when final usage arrives
-    const n = normalizeUsage(usage);
-    return typeof n.total === 'number'
-      ? n.total
-      : (n.input ?? 0) + (n.output ?? 0);
-  }, [usage]);
-
-  const contextProps = useMemo(
-    () => ({
-      maxTokens: contextMax,
-      usedTokens,
-      usage,
-      modelId: modelResolver.modelId,
-    }),
-    [contextMax, usedTokens, usage, modelResolver],
-  );
 
   const handleFileChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -362,6 +336,10 @@ function PureMultimodalInput({
               status={status}
               selectedModelId={selectedModelId}
             />
+            <ToolSelector
+              enabledTools={enabledTools}
+              onEnabledToolsChange={onEnabledToolsChange}
+            />
             <ModelSelectorCompact selectedModelId={selectedModelId} />
           </PromptInputTools>
 
@@ -388,6 +366,7 @@ export const MultimodalInput = memo(
     if (prevProps.input !== nextProps.input) return false;
     if (prevProps.status !== nextProps.status) return false;
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
+    if (!equal(prevProps.enabledTools, nextProps.enabledTools)) return false;
     return false;
   },
 );

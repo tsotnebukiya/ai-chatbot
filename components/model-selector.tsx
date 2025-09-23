@@ -13,8 +13,8 @@ import {
 import { chatModels } from '@/lib/ai/models';
 import { cn } from '@/lib/utils';
 
+import type { Session } from '@/lib/types';
 import { CheckCircleFillIcon, ChevronDownIcon } from './icons';
-import type { Session, UserType } from '@/lib/types';
 
 export function ModelSelector({
   session,
@@ -28,7 +28,6 @@ export function ModelSelector({
   const [optimisticModelId, setOptimisticModelId] =
     useOptimistic(selectedModelId);
 
-  const userType: UserType = (session.user as any).type ?? 'regular';
   const availableChatModelIds = ['chat-model', 'chat-model-reasoning'];
 
   const availableChatModels = chatModels.filter((chatModel) =>
