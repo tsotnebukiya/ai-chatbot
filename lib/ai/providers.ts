@@ -9,7 +9,7 @@ export const myProvider = customProvider({
   languageModels: {
     'chat-model': mistral('mistral-large-latest'),
     'chat-model-reasoning': wrapLanguageModel({
-      model: mistral('mistral-large-latest'),
+      model: mistral('magistral-medium-2506'),
       middleware: extractReasoningMiddleware({ tagName: 'think' }),
     }),
     'title-model': mistral('mistral-small-latest'),

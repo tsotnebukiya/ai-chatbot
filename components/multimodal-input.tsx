@@ -2,52 +2,51 @@
 
 import type { LanguageModelUsage, UIMessage } from 'ai';
 import {
-  useRef,
-  useEffect,
-  useState,
+  memo,
   useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
   type Dispatch,
   type SetStateAction,
-  type ChangeEvent,
-  memo,
-  useMemo,
 } from 'react';
 import { toast } from 'sonner';
 import { useLocalStorage, useWindowSize } from 'usehooks-ts';
 
-import {
-  ArrowUpIcon,
-  PaperclipIcon,
-  CpuIcon,
-  StopIcon,
-  ChevronDownIcon,
-} from './icons';
-import { PreviewAttachment } from './preview-attachment';
-import { Button } from './ui/button';
-import { SuggestedActions } from './suggested-actions';
+import { saveChatModelAsCookie } from '@/app/(chat)/actions';
+import { SelectItem } from '@/components/ui/select';
+import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
+import { chatModels } from '@/lib/ai/models';
+import { myProvider } from '@/lib/ai/providers';
+import type { Attachment, ChatMessage } from '@/lib/types';
+import type { UseChatHelpers } from '@ai-sdk/react';
+import * as SelectPrimitive from '@radix-ui/react-select';
+import equal from 'fast-deep-equal';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowDown } from 'lucide-react';
+import { startTransition } from 'react';
+import { getContextWindow, normalizeUsage } from 'tokenlens';
 import {
   PromptInput,
+  PromptInputModelSelect,
+  PromptInputModelSelectContent,
+  PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
   PromptInputTools,
-  PromptInputSubmit,
-  PromptInputModelSelect,
-  PromptInputModelSelectContent,
 } from './elements/prompt-input';
-import { SelectItem } from '@/components/ui/select';
-import * as SelectPrimitive from '@radix-ui/react-select';
-import equal from 'fast-deep-equal';
-import type { UseChatHelpers } from '@ai-sdk/react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowDown } from 'lucide-react';
-import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
-import type { Attachment, ChatMessage } from '@/lib/types';
-import { chatModels } from '@/lib/ai/models';
-import { saveChatModelAsCookie } from '@/app/(chat)/actions';
-import { startTransition } from 'react';
-import { getContextWindow, normalizeUsage } from 'tokenlens';
-import { Context } from './elements/context';
-import { myProvider } from '@/lib/ai/providers';
+import {
+  ArrowUpIcon,
+  ChevronDownIcon,
+  CpuIcon,
+  PaperclipIcon,
+  StopIcon,
+} from './icons';
+import { PreviewAttachment } from './preview-attachment';
+import { SuggestedActions } from './suggested-actions';
+import { Button } from './ui/button';
 
 function PureMultimodalInput({
   chatId,
@@ -355,7 +354,6 @@ function PureMultimodalInput({
             rows={1}
             autoFocus
           />{' '}
-          <Context {...contextProps} />
         </div>
         <PromptInputToolbar className="!border-top-0 border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!">
           <PromptInputTools className="gap-0 sm:gap-0.5">

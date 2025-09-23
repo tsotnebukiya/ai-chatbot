@@ -43,5 +43,6 @@ yarn-error.log*
 /blob-report/
 /playwright/*
 
-# AI
+# Other
 CLAUDE.md
+start-services.sh
