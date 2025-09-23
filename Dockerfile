@@ -14,12 +14,13 @@ RUN bun install --frozen-lockfile
 FROM base AS builder
 WORKDIR /app
 
-# Build arguments for database connection during build
+# Build arguments - all environment variables available during build
 ARG POSTGRES_URL
-ENV POSTGRES_URL=${POSTGRES_URL}
-
+ENV POSTGRES_URL=$POSTGRES_URL
+ARG BETTER_AUTH_SECRET
+ENV BETTER_AUTH_SECRET=$BETTER_AUTH_SECRET
 ARG BETTER_AUTH_URL
-ENV BETTER_AUTH_URL=${BETTER_AUTH_URL}
+ENV BETTER_AUTH_URL=$BETTER_AUTH_URL
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -33,11 +34,5 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy migration files for database setup
-COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
-COPY --from=builder /app/lib/db ./lib/db
-COPY --from=deps /app/node_modules/.bin/drizzle-kit ./node_modules/.bin/drizzle-kit
-COPY --from=deps /app/node_modules/drizzle-kit ./node_modules/drizzle-kit
-
 EXPOSE 3000
-CMD ["bun", "run", "server.js"]
+CMD ["bun", "server.js"]

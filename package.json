@@ -15,6 +15,7 @@
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
     "db:reset": "npx tsx lib/db/reset.ts",
+    "typecheck": "npx tsc --noEmit --incremental false",
     "test": "export PLAYWRIGHT=True && bun run playwright test"
   },
   "dependencies": {

@@ -8,8 +8,6 @@ services:
         condition: service_healthy
     environment:
       - POSTGRES_URL=${POSTGRES_URL}
-    env_file:
-      - .env
     networks:
       - my_network
 
@@ -17,45 +15,48 @@ services:
     build:
       context: .
       args:
-        - POSTGRES_URL=${POSTGRES_URL_BUILD}
+        - POSTGRES_URL=${POSTGRES_URL}
+        - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
         - BETTER_AUTH_URL=${BETTER_AUTH_URL}
     ports:
       - '3000:3000'
     environment:
       - NODE_ENV=production
       - POSTGRES_URL=${POSTGRES_URL}
-    env_file:
-      - .env
+      - REDIS_URL=${REDIS_URL}
+      - BLOB_READ_WRITE_TOKEN=${BLOB_READ_WRITE_TOKEN}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL}
     depends_on:
-      - db
-      - redis
-      - migration
+      db:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
     networks:
       - my_network
 
   db:
-    image: postgres:latest
+    image: postgres:16-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - my_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
-    image: redis:latest
+    image: redis:7-alpine
     command: ['redis-server', '--appendonly', 'yes']
-    ports:
-      - '6379:6379'
     volumes:
       - redis_data:/data
     networks:

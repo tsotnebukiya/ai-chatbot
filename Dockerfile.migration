@@ -11,4 +11,4 @@ RUN bun install --frozen-lockfile
 COPY . .
 
 # Run database migrations
-CMD ["bun", "run", "lib/db/migrate.ts"]
+CMD ["bun", "lib/db/migrate.ts"]

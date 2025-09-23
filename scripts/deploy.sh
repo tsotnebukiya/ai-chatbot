@@ -1,26 +1,6 @@
 #!/bin/bash
 
 
-# Env Vars (with fallbacks if not loaded from .env)
-POSTGRES_USER="myuser"
-POSTGRES_PASSWORD=$(openssl rand -base64 12)  # Generate a random 12-character password
-POSTGRES_DB="mydatabase"
-
-# Use values from .env or fallback to defaults
-BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-$(openssl rand -base64 32)}
-
-# Hardcoded API keys for production
-BLOB_READ_WRITE_TOKEN="vercel_blob_rw_C6BhzHkypxiy6niv_eBDTJCzuqlBsPhGLDODt9Ag5ORnKb6"
-MISTRAL_API_KEY="nPCMsx6CfLWUoFfnzDAE6G1CSaFBEqtz"
-
-# Auto-detect public IP for BETTER_AUTH_URL
-echo "Auto-detecting public IP address..."
-PUBLIC_IP=$(curl -s https://ipinfo.io/ip 2>/dev/null || curl -s https://api.ipify.org 2>/dev/null || echo "localhost")
-BETTER_AUTH_URL="http://${PUBLIC_IP}:3000"
-echo "Using BETTER_AUTH_URL: $BETTER_AUTH_URL"
-
-# Use values from .env or let them be unset
-
 # Script Vars
 REPO_URL="https://github.com/tsotnebukiya/ai-chatbot"
 APP_DIR=~/myapp
@@ -82,35 +62,42 @@ else
   cd $APP_DIR
 fi
 
-# For Docker internal communication ("db" is the name of Postgres container)
-POSTGRES_URL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$POSTGRES_DB"
+# Assumes curl is already installed and you are in the repo dir
+echo "Creating .env ..."
 
-# For Docker internal communication ("redis" is the name of Redis container)
-REDIS_URL="redis://redis:6379"
+PUBLIC_IP=$(curl -s https://ipinfo.io/ip || curl -s https://api.ipify.org || echo "localhost")
 
-# Export build variables so Docker can access them
-export POSTGRES_URL_BUILD="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB"
-echo "DEBUG: POSTGRES_URL_BUILD = $POSTGRES_URL_BUILD"
+POSTGRES_USER="myuser"
+POSTGRES_PASSWORD="$(openssl rand -base64 12)"
+POSTGRES_DB="mydatabase"
 
-# Create the .env file inside the app directory (~/myapp/.env)
-echo "POSTGRES_USER=$POSTGRES_USER" > "$APP_DIR/.env"
-echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> "$APP_DIR/.env"
-echo "POSTGRES_DB=$POSTGRES_DB" >> "$APP_DIR/.env"
-echo "POSTGRES_URL=$POSTGRES_URL" >> "$APP_DIR/.env"
-echo "REDIS_URL=$REDIS_URL" >> "$APP_DIR/.env"
-# Only write BLOB_READ_WRITE_TOKEN and MISTRAL_API_KEY if they exist
-if [ -n "${BLOB_READ_WRITE_TOKEN:-}" ]; then
-  echo "BLOB_READ_WRITE_TOKEN=$BLOB_READ_WRITE_TOKEN" >> "$APP_DIR/.env"
-fi
-if [ -n "${MISTRAL_API_KEY:-}" ]; then
-  echo "MISTRAL_API_KEY=$MISTRAL_API_KEY" >> "$APP_DIR/.env"
-fi
-echo "BETTER_AUTH_SECRET=$BETTER_AUTH_SECRET" >> "$APP_DIR/.env"
-echo "BETTER_AUTH_URL=$BETTER_AUTH_URL" >> "$APP_DIR/.env"
-echo "POSTGRES_URL_BUILD=$POSTGRES_URL_BUILD" >> "$APP_DIR/.env"
+# Prompt for external secrets (silent input for safety)
+read -s -p "Enter Vercel Blob Token: " BLOB_READ_WRITE_TOKEN; echo
+read -s -p "Enter Mistral API Key: " MISTRAL_API_KEY; echo
+
+BETTER_AUTH_SECRET="$(openssl rand -base64 32)"
+BETTER_AUTH_URL="http://${PUBLIC_IP}:3000"
+
+cat > .env <<EOF
+# --- Docker Compose environment (auto-loaded) ---
+POSTGRES_USER=${POSTGRES_USER}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+POSTGRES_DB=${POSTGRES_DB}
+POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+
+REDIS_URL=redis://redis:6379
+
+BLOB_READ_WRITE_TOKEN=${BLOB_READ_WRITE_TOKEN}
+MISTRAL_API_KEY=${MISTRAL_API_KEY}
+BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+BETTER_AUTH_URL=${BETTER_AUTH_URL}
+
+NODE_ENV=production
+EOF
+
+echo ".env created."
 
 # Build and run the Docker containers from the app directory (~/myapp)
-cd $APP_DIR
 sudo docker-compose up --build -d
 
 # Output final message
