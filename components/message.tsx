@@ -22,6 +22,7 @@ import { MessageReasoning } from './message-reasoning';
 import { PreviewAttachment } from './preview-attachment';
 import { Gmail } from './gmail';
 import { Weather } from './weather';
+import { WebSearch } from './web-search';
 
 const PurePreviewMessage = ({
   message,
@@ -193,6 +194,27 @@ const PurePreviewMessage = ({
                     {state === 'output-available' && (
                       <ToolOutput
                         output={<Gmail data={part.output} />}
+                        errorText={part.errorText}
+                      />
+                    )}
+                  </ToolContent>
+                </Tool>
+              );
+            }
+
+            if (type === 'tool-webSearch') {
+              const { toolCallId, state } = part;
+
+              return (
+                <Tool key={toolCallId} defaultOpen={true}>
+                  <ToolHeader type={type} state={state} />
+                  <ToolContent>
+                    {state === 'input-available' && (
+                      <ToolInput input={part.input} />
+                    )}
+                    {state === 'output-available' && (
+                      <ToolOutput
+                        output={<WebSearch data={part.output} />}
                         errorText={part.errorText}
                       />
                     )}

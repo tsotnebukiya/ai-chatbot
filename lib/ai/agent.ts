@@ -13,13 +13,15 @@ import { regularPrompt } from './prompts';
 import { myProvider } from './providers';
 import { getWeather } from './tools/get-weather';
 import { getEmail, listEmails, sendEmail } from './tools/gmail';
+import { webSearch } from './tools/web-search';
 
 // All tools in an object - types are just the function names
 const ALL_TOOLS = {
   getWeather,
   listEmails,
   sendEmail,
-  getEmail
+  getEmail,
+  webSearch
 } as const;
 
 type ToolName = keyof typeof ALL_TOOLS;
@@ -27,7 +29,8 @@ type ToolName = keyof typeof ALL_TOOLS;
 // Tool categories
 const TOOL_CATEGORIES = {
   weather: ['getWeather'] as const,
-  gmail: ['listEmails', 'sendEmail', 'getEmail'] as const
+  gmail: ['listEmails', 'sendEmail', 'getEmail'] as const,
+  webSearch: ['webSearch'] as const
 } as const;
 
 type ToolCategory = keyof typeof TOOL_CATEGORIES;
@@ -48,7 +51,9 @@ export function createChatStream({
   let finalUsage: LanguageModelUsage | undefined;
 
   const enabledCategories = enabledTools.includes('gmail')
-    ? ['weather', 'gmail']
+    ? ['weather', 'gmail', 'webSearch']
+    : enabledTools.includes('search')
+    ? ['weather', 'webSearch']
     : ['weather'];
   const enabledToolNames = enabledCategories.flatMap((category) => [
     ...TOOL_CATEGORIES[category as ToolCategory]

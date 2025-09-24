@@ -1,6 +1,7 @@
 'use client';
 
 import { GoogleToolDropdownItem } from '@/components/toolbox/gmail-tool';
+import { SearchToolDropdownItem } from '@/components/toolbox/search-tool';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -58,7 +59,16 @@ export function ToolSelector({ enabledTools, onEnabledToolsChange }: ToolSelecto
 
         <DropdownMenuSeparator />
 
-        <div className="max-h-64 overflow-y-auto">         
+        <div className="max-h-64 overflow-y-auto">
+            <SearchToolDropdownItem
+              isEnabled={enabledTools.includes('search')}
+              onToggle={(enabled) => {
+                const newTools = enabled
+                  ? [...enabledTools, 'search']
+                  : enabledTools.filter(id => id !== 'search');
+                onEnabledToolsChange(newTools);
+              }}
+            />
             <GoogleToolDropdownItem
               isEnabled={enabledTools.includes('gmail')}
               onToggle={(enabled) => {

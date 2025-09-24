@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { getWeather } from './ai/tools/get-weather';
 import type { getEmail, listEmails, sendEmail } from './ai/tools/gmail';
+import type { webSearch } from './ai/tools/web-search';
 import type { InferUITool, LanguageModelUsage, UIMessage } from 'ai';
 import type { User as BetterAuthUser } from './auth/auth';
 
@@ -16,12 +17,14 @@ type weatherTool = InferUITool<typeof getWeather>;
 type getEmailTool = InferUITool<typeof getEmail>;
 type listEmailsTool = InferUITool<typeof listEmails>;
 type sendEmailTool = InferUITool<typeof sendEmail>;
+type webSearchTool = InferUITool<typeof webSearch>;
 
 export type ChatTools = {
   getWeather: weatherTool;
   getEmail: getEmailTool;
   listEmails: listEmailsTool;
   sendEmail: sendEmailTool;
+  webSearch: webSearchTool;
 };
 
 export type CustomUIDataTypes = {
