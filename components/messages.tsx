@@ -1,13 +1,13 @@
-import { PreviewMessage, ThinkingMessage } from './message';
-import { Greeting } from './greeting';
-import { memo, useEffect } from 'react';
-import equal from 'fast-deep-equal';
-import type { UseChatHelpers } from '@ai-sdk/react';
 import { useMessages } from '@/hooks/use-messages';
 import type { ChatMessage } from '@/lib/types';
+import type { UseChatHelpers } from '@ai-sdk/react';
+import equal from 'fast-deep-equal';
+import { ArrowDownIcon } from 'lucide-react';
+import { memo, useEffect } from 'react';
 import { useDataStream } from './data-stream-provider';
 import { Conversation, ConversationContent } from './elements/conversation';
-import { ArrowDownIcon } from 'lucide-react';
+import { Greeting } from './greeting';
+import { PreviewMessage, ThinkingMessage } from './message';
 
 interface MessagesProps {
   chatId: string;
@@ -16,29 +16,25 @@ interface MessagesProps {
   setMessages: UseChatHelpers<ChatMessage>['setMessages'];
   regenerate: UseChatHelpers<ChatMessage>['regenerate'];
   isReadonly: boolean;
-  isArtifactVisible: boolean;
   selectedModelId: string;
 }
 
 function PureMessages({
-  chatId,
   status,
   messages,
   setMessages,
   regenerate,
   isReadonly,
-  isArtifactVisible,
-  selectedModelId,
+  selectedModelId
 }: MessagesProps) {
   const {
     containerRef: messagesContainerRef,
     endRef: messagesEndRef,
     isAtBottom,
     scrollToBottom,
-    hasSentMessage,
+    hasSentMessage
   } = useMessages({
-    chatId,
-    status,
+    status
   });
 
   useDataStream();
@@ -50,7 +46,7 @@ function PureMessages({
         if (container) {
           container.scrollTo({
             top: container.scrollHeight,
-            behavior: 'smooth',
+            behavior: 'smooth'
           });
         }
       });
@@ -80,7 +76,6 @@ function PureMessages({
               requiresScrollPadding={
                 hasSentMessage && index === messages.length - 1
               }
-              isArtifactVisible={isArtifactVisible}
             />
           ))}
 
@@ -111,8 +106,6 @@ function PureMessages({
 }
 
 export const Messages = memo(PureMessages, (prevProps, nextProps) => {
-  if (prevProps.isArtifactVisible && nextProps.isArtifactVisible) return true;
-
   if (prevProps.status !== nextProps.status) return false;
   if (prevProps.selectedModelId !== nextProps.selectedModelId) return false;
   if (prevProps.messages.length !== nextProps.messages.length) return false;

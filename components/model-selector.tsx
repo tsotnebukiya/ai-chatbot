@@ -8,20 +8,17 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { chatModels } from '@/lib/ai/models';
 import { cn } from '@/lib/utils';
 
-import type { Session } from '@/lib/types';
 import { CheckCircleFillIcon, ChevronDownIcon } from './icons';
 
 export function ModelSelector({
-  session,
   selectedModelId,
-  className,
+  className
 }: {
-  session: Session;
   selectedModelId: string;
 } & React.ComponentProps<typeof Button>) {
   const [open, setOpen] = useState(false);
@@ -31,15 +28,15 @@ export function ModelSelector({
   const availableChatModelIds = ['chat-model', 'chat-model-reasoning'];
 
   const availableChatModels = chatModels.filter((chatModel) =>
-    availableChatModelIds.includes(chatModel.id),
+    availableChatModelIds.includes(chatModel.id)
   );
 
   const selectedChatModel = useMemo(
     () =>
       availableChatModels.find(
-        (chatModel) => chatModel.id === optimisticModelId,
+        (chatModel) => chatModel.id === optimisticModelId
       ),
-    [optimisticModelId, availableChatModels],
+    [optimisticModelId, availableChatModels]
   );
 
   return (
@@ -48,7 +45,7 @@ export function ModelSelector({
         asChild
         className={cn(
           'w-fit data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
-          className,
+          className
         )}
       >
         <Button

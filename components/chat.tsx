@@ -9,7 +9,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import { useAutoResume } from '@/hooks/use-auto-resume';
 import { saveChatToolsToClientCookie } from '@/lib/chat-tools-cookie';
@@ -34,9 +34,8 @@ export function Chat({
   initialChatModel,
   initialEnabledTools,
   isReadonly,
-  session,
   autoResume,
-  initialLastContext,
+  initialLastContext
 }: {
   id: string;
   initialMessages: ChatMessage[];
@@ -52,11 +51,11 @@ export function Chat({
 
   const [input, setInput] = useState<string>('');
   const [usage, setUsage] = useState<LanguageModelUsage | undefined>(
-    initialLastContext,
+    initialLastContext
   );
   const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
   const [enabledTools, setEnabledTools] = useState<string[]>(
-    initialEnabledTools || [],
+    initialEnabledTools || []
   );
   const enabledToolsRef = useRef(enabledTools); // Create ref
 
@@ -67,7 +66,7 @@ export function Chat({
     status,
     stop,
     regenerate,
-    resumeStream,
+    resumeStream
   } = useChat<ChatMessage>({
     id,
     messages: initialMessages,
@@ -83,10 +82,10 @@ export function Chat({
             message: messages.at(-1),
             selectedChatModel: initialChatModel,
             enabledTools: enabledToolsRef.current,
-            ...body,
-          },
+            ...body
+          }
         };
-      },
+      }
     }),
     onData: (dataPart) => {
       setDataStream((ds) => (ds ? [...ds, dataPart] : []));
@@ -107,11 +106,11 @@ export function Chat({
         } else {
           toast({
             type: 'error',
-            description: error.message,
+            description: error.message
           });
         }
       }
-    },
+    }
   });
 
   const searchParams = useSearchParams();
@@ -127,7 +126,7 @@ export function Chat({
     if (query && !hasAppendedQuery) {
       sendMessage({
         role: 'user' as const,
-        parts: [{ type: 'text', text: query }],
+        parts: [{ type: 'text', text: query }]
       });
 
       setHasAppendedQuery(true);
@@ -141,7 +140,7 @@ export function Chat({
     autoResume,
     initialMessages,
     resumeStream,
-    setMessages,
+    setMessages
   });
 
   return (
@@ -156,7 +155,6 @@ export function Chat({
           setMessages={setMessages}
           regenerate={regenerate}
           isReadonly={isReadonly}
-          isArtifactVisible={false}
           selectedModelId={initialChatModel}
         />
 
@@ -204,7 +202,7 @@ export function Chat({
               onClick={() => {
                 window.open(
                   'https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dadd-credit-card',
-                  '_blank',
+                  '_blank'
                 );
                 window.location.href = '/';
               }}

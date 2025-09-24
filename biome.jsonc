@@ -64,7 +64,8 @@
         "noUnusedImports": "warn", // Not in recommended ruleset, turning on manually
         "useJsxKeyInIterable": "off", // Rule is buggy, revisit later
         "useExhaustiveDependencies": "off", // Errors by default, switching to warn instead
-        "noInvalidBuiltinInstantiation": "warn"
+        "noInvalidBuiltinInstantiation": "warn",
+        "useUniqueElementIds": "off" // Allow static IDs in components
       },
       "security": {
         "noDangerouslySetInnerHtml": "off", // Covered by Conformance

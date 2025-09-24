@@ -1,19 +1,17 @@
 import type { Attachment } from '@/lib/types';
+import Image from 'next/image';
 import { Loader } from './elements/loader';
 import { CrossSmallIcon } from './icons';
 import { Button } from './ui/button';
-import Image from 'next/image';
 
 export const PreviewAttachment = ({
   attachment,
   isUploading = false,
-  onRemove,
-  onEdit,
+  onRemove
 }: {
   attachment: Attachment;
   isUploading?: boolean;
   onRemove?: () => void;
-  onEdit?: () => void;
 }) => {
   const { name, url, contentType } = attachment;
 

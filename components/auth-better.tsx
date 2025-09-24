@@ -1,20 +1,20 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { authClient } from '@/lib/auth/auth-client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from '@/components/ui/card';
 import { Icons } from '@/components/ui/icons';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { authClient } from '@/lib/auth/auth-client';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface AuthFormProps {
   mode: 'login' | 'register';
@@ -38,7 +38,7 @@ export function AuthBetter({ mode, redirectTo = '/' }: AuthFormProps) {
         const result = await authClient.signUp.email({
           email,
           password,
-          name: email.split('@')[0], // Use email prefix as name
+          name: email.split('@')[0] // Use email prefix as name
         });
 
         if (result.error) {
@@ -47,12 +47,12 @@ export function AuthBetter({ mode, redirectTo = '/' }: AuthFormProps) {
           // Auto-login after successful registration
           const loginResult = await authClient.signIn.email({
             email,
-            password,
+            password
           });
 
           if (loginResult.error) {
             setError(
-              loginResult.error.message || 'Failed to login after registration',
+              loginResult.error.message || 'Failed to login after registration'
             );
           } else {
             router.push(redirectTo);
@@ -61,7 +61,7 @@ export function AuthBetter({ mode, redirectTo = '/' }: AuthFormProps) {
       } else {
         const result = await authClient.signIn.email({
           email,
-          password,
+          password
         });
 
         if (result.error) {
@@ -78,13 +78,13 @@ export function AuthBetter({ mode, redirectTo = '/' }: AuthFormProps) {
   };
 
   const handleSocialSignIn = async (
-    provider: 'google' | 'github' | 'discord',
+    provider: 'google' | 'github' | 'discord'
   ) => {
     setIsLoading(true);
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: redirectTo,
+        callbackURL: redirectTo
       });
     } catch (_err) {
       setError(`Failed to sign in with ${provider}`);

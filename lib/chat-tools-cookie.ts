@@ -37,7 +37,6 @@ function setCookie(name: string, value: string, days: number = 7) {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
 
-  // Use the same pattern as the sidebar component
-  // biome-ignore lint/complexity/noUselessTernary: Standard cookie assignment pattern
+  // biome-ignore lint/suspicious/noDocumentCookie: <false positive>
   document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${days * 24 * 60 * 60}`;
 }

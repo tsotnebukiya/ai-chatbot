@@ -4,12 +4,13 @@ import { useWindowSize } from 'usehooks-ts';
 
 import { SidebarToggle } from '@/components/sidebar-toggle';
 import { Button } from '@/components/ui/button';
+import { memo } from 'react';
 import { PlusIcon } from './icons';
 import { useSidebar } from './ui/sidebar';
-import { memo } from 'react';
 
 function PureChatHeader({
-  isReadonly,
+  // biome-ignore lint/correctness/noUnusedFunctionParameters: isReadonly is not used in the component
+  isReadonly
 }: {
   isReadonly: boolean;
 }) {
