@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useAutoResume } from '@/hooks/use-auto-resume';
+import { saveChatToolsToClientCookie } from '@/lib/chat-tools-cookie';
 import { ChatSDKError } from '@/lib/errors';
 import type { Attachment, ChatMessage, Session } from '@/lib/types';
 import { fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
@@ -19,7 +20,6 @@ import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type LanguageModelUsage } from 'ai';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { saveChatToolsAsCookie } from '@/app/(chat)/actions';
 import { useSWRConfig } from 'swr';
 import { unstable_serialize } from 'swr/infinite';
 import { useDataStream } from './data-stream-provider';
@@ -55,8 +55,11 @@ export function Chat({
     initialLastContext,
   );
   const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
-  const [enabledTools, setEnabledTools] = useState<string[]>(initialEnabledTools || ['weather']);
+  const [enabledTools, setEnabledTools] = useState<string[]>(
+    initialEnabledTools || [],
+  );
   const enabledToolsRef = useRef(enabledTools); // Create ref
+
   const {
     messages,
     setMessages,
@@ -175,7 +178,7 @@ export function Chat({
               enabledTools={enabledTools}
               onEnabledToolsChange={(tools) => {
                 setEnabledTools(tools);
-                saveChatToolsAsCookie(id, tools);
+                saveChatToolsToClientCookie(id, tools);
               }}
             />
           )}

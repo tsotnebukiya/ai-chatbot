@@ -13,21 +13,6 @@ export async function saveChatModelAsCookie(model: string) {
   cookieStore.set('chat-model', model);
 }
 
-export async function saveChatToolsAsCookie(chatId: string, tools: string[]) {
-  const cookieStore = await cookies();
-  const currentCookie = cookieStore.get('chat-tools')?.value || '{}';
-
-  try {
-    const currentTools = JSON.parse(currentCookie);
-    currentTools[chatId] = tools;
-    cookieStore.set('chat-tools', JSON.stringify(currentTools));
-  } catch (_error) {
-    // If parsing fails, create new object
-    const newTools = { [chatId]: tools };
-    cookieStore.set('chat-tools', JSON.stringify(newTools));
-  }
-}
-
 export async function getChatToolsFromCookie(
   chatId: string,
 ): Promise<string[]> {
