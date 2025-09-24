@@ -225,10 +225,6 @@
   }
 }
 
-.ProseMirror {
-  outline: none;
-}
-
 .cm-editor,
 .cm-gutters {
   @apply bg-background! dark:bg-zinc-800! outline-hidden! selection:bg-zinc-900!;

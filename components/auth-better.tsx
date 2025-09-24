@@ -77,9 +77,7 @@ export function AuthBetter({ mode, redirectTo = '/' }: AuthFormProps) {
     }
   };
 
-  const handleSocialSignIn = async (
-    provider: 'google' | 'github' | 'discord'
-  ) => {
+  const handleSocialSignIn = async (provider: 'google') => {
     setIsLoading(true);
     try {
       await authClient.signIn.social({
@@ -154,24 +152,10 @@ export function AuthBetter({ mode, redirectTo = '/' }: AuthFormProps) {
         <div className="grid grid-cols-3 gap-3">
           <Button
             variant="outline"
-            onClick={() => handleSocialSignIn('github')}
-            disabled={isLoading}
-          >
-            <Icons.gitHub className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
             onClick={() => handleSocialSignIn('google')}
             disabled={isLoading}
           >
             <Icons.google className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => handleSocialSignIn('discord')}
-            disabled={isLoading}
-          >
-            <Icons.discord className="h-4 w-4" />
           </Button>
         </div>
 

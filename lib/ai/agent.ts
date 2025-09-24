@@ -9,7 +9,6 @@ import {
   type LanguageModelUsage
 } from 'ai';
 import { saveMessages, updateChatLastContextById } from '../db/queries';
-import { regularPrompt } from './prompts';
 import { myProvider } from './providers';
 import { getWeather } from './tools/get-weather';
 import { getEmail, listEmails, sendEmail } from './tools/gmail';
@@ -71,7 +70,8 @@ export function createChatStream({
     execute: ({ writer: dataStream }) => {
       const result = streamText({
         model: myProvider.languageModel(selectedChatModel),
-        system: regularPrompt,
+        system:
+          'You are a friendly assistant! Keep your responses concise and helpful.',
         messages: convertToModelMessages(messages),
         stopWhen: stepCountIs(5),
         experimental_transform: smoothStream({ chunking: 'word' }),
