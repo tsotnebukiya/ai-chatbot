@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { getWeather } from './ai/tools/get-weather';
+import type { getEmail, listEmails, sendEmail } from './ai/tools/gmail';
 import type { InferUITool, LanguageModelUsage, UIMessage } from 'ai';
 import type { User as BetterAuthUser } from './auth/auth';
 
@@ -12,9 +13,15 @@ export const messageMetadataSchema = z.object({
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
 
 type weatherTool = InferUITool<typeof getWeather>;
+type getEmailTool = InferUITool<typeof getEmail>;
+type listEmailsTool = InferUITool<typeof listEmails>;
+type sendEmailTool = InferUITool<typeof sendEmail>;
 
 export type ChatTools = {
   getWeather: weatherTool;
+  getEmail: getEmailTool;
+  listEmails: listEmailsTool;
+  sendEmail: sendEmailTool;
 };
 
 export type CustomUIDataTypes = {

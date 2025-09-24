@@ -20,6 +20,7 @@ import { MessageActions } from './message-actions';
 import { MessageEditor } from './message-editor';
 import { MessageReasoning } from './message-reasoning';
 import { PreviewAttachment } from './preview-attachment';
+import { Gmail } from './gmail';
 import { Weather } from './weather';
 
 const PurePreviewMessage = ({
@@ -172,6 +173,27 @@ const PurePreviewMessage = ({
                       <ToolOutput
                         output={<Weather weatherAtLocation={part.output} />}
                         errorText={undefined}
+                      />
+                    )}
+                  </ToolContent>
+                </Tool>
+              );
+            }
+
+            if (type === 'tool-listEmails' || type === 'tool-getEmail' || type === 'tool-sendEmail') {
+              const { toolCallId, state } = part;
+
+              return (
+                <Tool key={toolCallId} defaultOpen={true}>
+                  <ToolHeader type={type} state={state} />
+                  <ToolContent>
+                    {state === 'input-available' && (
+                      <ToolInput input={part.input} />
+                    )}
+                    {state === 'output-available' && (
+                      <ToolOutput
+                        output={<Gmail data={part.output} />}
+                        errorText={part.errorText}
                       />
                     )}
                   </ToolContent>
