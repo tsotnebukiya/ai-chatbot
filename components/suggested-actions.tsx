@@ -16,7 +16,7 @@ function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
     'What are the advantages of using Next.js?',
     "Write code to demonstrate Dijkstra's algorithm",
     'Help me write an essay about Silicon Valley',
-    'What is the weather in San Francisco?',
+    'What is the weather in San Francisco?'
   ];
 
   return (
@@ -38,7 +38,7 @@ function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
               window.history.replaceState({}, '', `/chat/${chatId}`);
               sendMessage({
                 role: 'user',
-                parts: [{ type: 'text', text: suggestion }],
+                parts: [{ type: 'text', text: suggestion }]
               });
             }}
             className="h-auto w-full whitespace-normal p-3 text-left"
@@ -57,5 +57,5 @@ export const SuggestedActions = memo(
     if (prevProps.chatId !== nextProps.chatId) return false;
 
     return true;
-  },
+  }
 );

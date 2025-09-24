@@ -36,7 +36,7 @@ export function useScrollToBottom() {
       const container = containerRef.current;
       const scrollOptions: ScrollToOptions = {
         top: container.scrollHeight,
-        behavior: scrollBehavior,
+        behavior: scrollBehavior
       };
       container.scrollTo(scrollOptions);
       setScrollBehavior(false);
@@ -47,7 +47,7 @@ export function useScrollToBottom() {
     (scrollBehavior: ScrollBehavior = 'smooth') => {
       setScrollBehavior(scrollBehavior);
     },
-    [setScrollBehavior],
+    [setScrollBehavior]
   );
 
   function onViewportEnter() {
@@ -64,6 +64,6 @@ export function useScrollToBottom() {
     isAtBottom,
     scrollToBottom,
     onViewportEnter,
-    onViewportLeave,
+    onViewportLeave
   };
 }

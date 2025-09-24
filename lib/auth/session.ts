@@ -10,7 +10,7 @@ type SessionOptions = {
 };
 
 async function resolveHeaders(
-  options: SessionOptions = {},
+  options: SessionOptions = {}
 ): Promise<Headers | null> {
   if (options.headers) {
     return new Headers(options.headers);
@@ -25,7 +25,7 @@ async function resolveHeaders(
 }
 
 export async function getSession(
-  options: SessionOptions = {},
+  options: SessionOptions = {}
 ): Promise<Session | null> {
   const headersList = await resolveHeaders(options);
   if (!headersList) {
@@ -43,7 +43,7 @@ export async function getSession(
   try {
     return await auth.api.getSession({
       headers: headersList,
-      ...(Object.keys(query).length ? { query } : {}),
+      ...(Object.keys(query).length ? { query } : {})
     });
   } catch (error) {
     console.error('Error getting session:', error);
@@ -52,14 +52,14 @@ export async function getSession(
 }
 
 export async function isAuthenticated(
-  options?: SessionOptions,
+  options?: SessionOptions
 ): Promise<boolean> {
   const session = await getSession(options);
   return Boolean(session?.user);
 }
 
 export async function getCurrentUser(
-  options?: SessionOptions,
+  options?: SessionOptions
 ): Promise<User | null> {
   const session = await getSession(options);
   return session?.user ?? null;

@@ -8,7 +8,7 @@ import type { User as BetterAuthUser } from './auth/auth';
 export type DataPart = { type: 'append-message'; message: string };
 
 export const messageMetadataSchema = z.object({
-  createdAt: z.string(),
+  createdAt: z.string()
 });
 
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;

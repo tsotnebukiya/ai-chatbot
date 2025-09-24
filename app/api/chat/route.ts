@@ -8,7 +8,7 @@ import {
   getChatById,
   getMessagesByChatId,
   saveChat,
-  saveMessages,
+  saveMessages
 } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 import type { ChatMessage } from '@/lib/types';
@@ -17,7 +17,7 @@ import { JsonToSseTransformStream } from 'ai';
 import { after } from 'next/server';
 import {
   createResumableStreamContext,
-  type ResumableStreamContext,
+  type ResumableStreamContext
 } from 'resumable-stream';
 import { type PostRequestBody, postRequestBodySchema } from './schema';
 
@@ -29,7 +29,7 @@ export function getStreamContext() {
   if (!globalStreamContext) {
     try {
       globalStreamContext = createResumableStreamContext({
-        waitUntil: after,
+        waitUntil: after
       });
     } catch (error: any) {
       console.error(error);
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       id,
       message,
       selectedChatModel,
-      enabledTools,
+      enabledTools
     }: {
       id: string;
       message: ChatMessage;
@@ -67,12 +67,12 @@ export async function POST(request: Request) {
     const chat = await getChatById({ id });
     if (!chat) {
       const title = await generateTitleFromUserMessage({
-        message,
+        message
       });
       await saveChat({
         id,
         userId: session.user.id,
-        title,
+        title
       });
     } else {
       if (chat.userId !== session.user.id) {
@@ -92,9 +92,9 @@ export async function POST(request: Request) {
           role: 'user',
           parts: message.parts,
           attachments: [],
-          createdAt: new Date(),
-        },
-      ],
+          createdAt: new Date()
+        }
+      ]
     });
 
     const streamId = generateUUID();
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
       chatId: id,
       enabledTools,
       messages: uiMessages,
-      selectedChatModel,
+      selectedChatModel
     });
     const streamContext = getStreamContext();
 
@@ -112,12 +112,12 @@ export async function POST(request: Request) {
     if (streamContext) {
       response = new Response(
         await streamContext.resumableStream(streamId, () =>
-          stream.pipeThrough(new JsonToSseTransformStream()),
-        ),
+          stream.pipeThrough(new JsonToSseTransformStream())
+        )
       );
     } else {
       response = new Response(
-        stream.pipeThrough(new JsonToSseTransformStream()),
+        stream.pipeThrough(new JsonToSseTransformStream())
       );
     }
 

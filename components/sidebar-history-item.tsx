@@ -2,14 +2,14 @@ import type { Chat } from '@/lib/db/schema';
 import {
   SidebarMenuAction,
   SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarMenuItem
 } from './ui/sidebar';
 import Link from 'next/link';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from './ui/dropdown-menu';
 import { MoreHorizontalIcon, TrashIcon } from './icons';
 import { memo } from 'react';
@@ -18,7 +18,7 @@ const PureChatItem = ({
   chat,
   isActive,
   onDelete,
-  setOpenMobile,
+  setOpenMobile
 }: {
   chat: Chat;
   isActive: boolean;

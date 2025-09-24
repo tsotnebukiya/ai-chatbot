@@ -181,7 +181,11 @@ const PurePreviewMessage = ({
               );
             }
 
-            if (type === 'tool-listEmails' || type === 'tool-getEmail' || type === 'tool-sendEmail') {
+            if (
+              type === 'tool-listEmails' ||
+              type === 'tool-getEmail' ||
+              type === 'tool-sendEmail'
+            ) {
               const { toolCallId, state } = part;
 
               return (

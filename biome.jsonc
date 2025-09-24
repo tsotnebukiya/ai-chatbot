@@ -5,6 +5,7 @@
     "includes": [
       "**",
       "!**/bun.lockb",
+      "!**/bun.lock",
       "!**/lib/db/migrations",
       "!**/lib/editor/react-renderer.tsx",
       "!**/node_modules",
@@ -65,7 +66,7 @@
         "useJsxKeyInIterable": "off", // Rule is buggy, revisit later
         "useExhaustiveDependencies": "off", // Errors by default, switching to warn instead
         "noInvalidBuiltinInstantiation": "warn",
-        "useUniqueElementIds": "off" // Allow static IDs in components
+        "useUniqueElementIds": "off"
       },
       "security": {
         "noDangerouslySetInnerHtml": "off", // Covered by Conformance
@@ -120,19 +121,6 @@
     "formatter": { "enabled": false },
     "linter": { "enabled": false }
   },
-  "assist": { "actions": { "source": { "organizeImports": "off" } } },
-  "overrides": [
-    // Playwright requires an object destructure, even if empty
-    // https://github.com/microsoft/playwright/issues/30007
-    {
-      "includes": ["**/playwright/**"],
-      "linter": {
-        "rules": {
-          "correctness": {
-            "noEmptyPattern": "off"
-          }
-        }
-      }
-    }
-  ]
+
+  "assist": { "actions": { "source": { "organizeImports": "off" } } }
 }

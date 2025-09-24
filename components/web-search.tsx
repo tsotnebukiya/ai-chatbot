@@ -1,10 +1,22 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { SearchIcon, ExternalLinkIcon, ClockIcon, AlertCircleIcon, GlobeIcon } from 'lucide-react';
+import {
+  SearchIcon,
+  ExternalLinkIcon,
+  ClockIcon,
+  AlertCircleIcon,
+  GlobeIcon
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 // Web search response types
@@ -72,7 +84,9 @@ export function WebSearchResults({ data }: { data: WebSearchResponse }) {
           </h3>
           <div className="flex items-center gap-2 text-muted-foreground text-xs">
             <ClockIcon className="h-3 w-3" />
-            <span>{responseTime}ms • {results.length} results</span>
+            <span>
+              {responseTime}ms • {results.length} results
+            </span>
           </div>
         </div>
         <Badge variant="secondary" className="text-xs">
@@ -106,7 +120,9 @@ export function WebSearchResults({ data }: { data: WebSearchResponse }) {
         <Card className="max-w-2xl">
           <CardContent className="p-8 text-center">
             <SearchIcon className="mx-auto mb-4 h-12 w-12 text-muted-foreground opacity-50" />
-            <p className="text-muted-foreground text-sm">No search results found</p>
+            <p className="text-muted-foreground text-sm">
+              No search results found
+            </p>
           </CardContent>
         </Card>
       )}
@@ -145,12 +161,7 @@ function SearchResultItem({ result }: { result: SearchResult }) {
                 )}
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="h-8 w-8 p-1"
-            >
+            <Button variant="ghost" size="sm" asChild className="h-8 w-8 p-1">
               <a
                 href={result.url}
                 target="_blank"
@@ -170,11 +181,36 @@ function SearchResultItem({ result }: { result: SearchResult }) {
           {/* Relevance score indicator */}
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-1">
-              <div className={cn("h-3 w-1 rounded-full", result.score >= 0.2 && "bg-blue-500")} />
-              <div className={cn("h-3 w-1 rounded-full", result.score >= 0.4 && "bg-blue-500")} />
-              <div className={cn("h-3 w-1 rounded-full", result.score >= 0.6 && "bg-blue-500")} />
-              <div className={cn("h-3 w-1 rounded-full", result.score >= 0.8 && "bg-blue-500")} />
-              <div className={cn("h-3 w-1 rounded-full", result.score >= 1.0 && "bg-blue-500")} />
+              <div
+                className={cn(
+                  'h-3 w-1 rounded-full',
+                  result.score >= 0.2 && 'bg-blue-500'
+                )}
+              />
+              <div
+                className={cn(
+                  'h-3 w-1 rounded-full',
+                  result.score >= 0.4 && 'bg-blue-500'
+                )}
+              />
+              <div
+                className={cn(
+                  'h-3 w-1 rounded-full',
+                  result.score >= 0.6 && 'bg-blue-500'
+                )}
+              />
+              <div
+                className={cn(
+                  'h-3 w-1 rounded-full',
+                  result.score >= 0.8 && 'bg-blue-500'
+                )}
+              />
+              <div
+                className={cn(
+                  'h-3 w-1 rounded-full',
+                  result.score >= 1.0 && 'bg-blue-500'
+                )}
+              />
               <span className="ml-2 text-muted-foreground text-xs">
                 {Math.round(result.score * 100)}% relevant
               </span>
@@ -186,7 +222,11 @@ function SearchResultItem({ result }: { result: SearchResult }) {
   );
 }
 
-export function SetupRequired({ setupData }: { setupData: SetupRequiredResponse }) {
+export function SetupRequired({
+  setupData
+}: {
+  setupData: SetupRequiredResponse;
+}) {
   return (
     <Card className="max-w-md">
       <CardHeader className="pb-4 text-center">
@@ -205,8 +245,24 @@ export function SetupRequired({ setupData }: { setupData: SetupRequiredResponse 
             <div className="text-muted-foreground text-sm">
               <p className="mb-2">To enable web search functionality:</p>
               <ol className="list-inside list-decimal space-y-1 text-left">
-                <li>Sign up for a Tavily API key at <a href="https://tavily.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">tavily.com</a></li>
-                <li>Add your API key as <code className="rounded bg-muted px-1 py-0.5 text-xs">TAVILY_API_KEY</code> to your environment variables</li>
+                <li>
+                  Sign up for a Tavily API key at{' '}
+                  <a
+                    href="https://tavily.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    tavily.com
+                  </a>
+                </li>
+                <li>
+                  Add your API key as{' '}
+                  <code className="rounded bg-muted px-1 py-0.5 text-xs">
+                    TAVILY_API_KEY
+                  </code>{' '}
+                  to your environment variables
+                </li>
                 <li>Restart the development server</li>
               </ol>
             </div>
@@ -249,7 +305,9 @@ export function WebSearch({ data }: { data: any }) {
       <CardContent className="p-4">
         <div className="text-center">
           <SearchIcon className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-          <p className="text-muted-foreground text-sm">Web search data format not recognized</p>
+          <p className="text-muted-foreground text-sm">
+            Web search data format not recognized
+          </p>
         </div>
       </CardContent>
     </Card>

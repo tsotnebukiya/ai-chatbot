@@ -8,7 +8,7 @@ import { Button } from './ui/button';
 
 export function SubmitButton({
   children,
-  isSuccessful,
+  isSuccessful
 }: {
   children: React.ReactNode;
   isSuccessful: boolean;

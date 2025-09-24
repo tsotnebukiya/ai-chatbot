@@ -13,7 +13,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  useSidebar,
+  useSidebar
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';

@@ -8,7 +8,7 @@ import { createContext, useContext, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import {
   oneDark,
-  oneLight,
+  oneLight
 } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 type CodeBlockContextType = {
@@ -16,7 +16,7 @@ type CodeBlockContextType = {
 };
 
 const CodeBlockContext = createContext<CodeBlockContextType>({
-  code: '',
+  code: ''
 });
 
 export type CodeBlockProps = HTMLAttributes<HTMLDivElement> & {
@@ -38,7 +38,7 @@ export const CodeBlock = ({
     <div
       className={cn(
         'relative w-full overflow-hidden rounded-md border bg-background text-foreground',
-        className,
+        className
       )}
       {...props}
     >
@@ -46,7 +46,7 @@ export const CodeBlock = ({
         <SyntaxHighlighter
           className="overflow-hidden dark:hidden"
           codeTagProps={{
-            className: 'font-mono text-sm',
+            className: 'font-mono text-sm'
           }}
           customStyle={{
             margin: 0,
@@ -56,13 +56,13 @@ export const CodeBlock = ({
             color: 'hsl(var(--foreground))',
             overflowX: 'auto',
             overflowWrap: 'break-word',
-            wordBreak: 'break-all',
+            wordBreak: 'break-all'
           }}
           language={language}
           lineNumberStyle={{
             color: 'hsl(var(--muted-foreground))',
             paddingRight: '1rem',
-            minWidth: '2.5rem',
+            minWidth: '2.5rem'
           }}
           showLineNumbers={showLineNumbers}
           style={oneLight}
@@ -72,7 +72,7 @@ export const CodeBlock = ({
         <SyntaxHighlighter
           className="hidden overflow-hidden dark:block"
           codeTagProps={{
-            className: 'font-mono text-sm',
+            className: 'font-mono text-sm'
           }}
           customStyle={{
             margin: 0,
@@ -82,13 +82,13 @@ export const CodeBlock = ({
             color: 'hsl(var(--foreground))',
             overflowX: 'auto',
             overflowWrap: 'break-word',
-            wordBreak: 'break-all',
+            wordBreak: 'break-all'
           }}
           language={language}
           lineNumberStyle={{
             color: 'hsl(var(--muted-foreground))',
             paddingRight: '1rem',
-            minWidth: '2.5rem',
+            minWidth: '2.5rem'
           }}
           showLineNumbers={showLineNumbers}
           style={oneDark}

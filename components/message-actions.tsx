@@ -9,7 +9,7 @@ import type { ChatMessage } from '@/lib/types';
 export function PureMessageActions({
   message,
   isLoading,
-  setMode,
+  setMode
 }: {
   message: ChatMessage;
   isLoading: boolean;
@@ -72,5 +72,5 @@ export const MessageActions = memo(
     if (prevProps.isLoading !== nextProps.isLoading) return false;
 
     return true;
-  },
+  }
 );

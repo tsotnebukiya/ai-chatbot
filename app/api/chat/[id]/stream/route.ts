@@ -2,7 +2,7 @@ import { requireAuth } from '@/lib/auth/session';
 import {
   getChatById,
   getMessagesByChatId,
-  getStreamIdsByChatId,
+  getStreamIdsByChatId
 } from '@/lib/db/queries';
 import type { Chat } from '@/lib/db/schema';
 import { ChatSDKError } from '@/lib/errors';
@@ -13,7 +13,7 @@ import { differenceInSeconds } from 'date-fns';
 
 export async function GET(
   _: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: chatId } = await params;
 
@@ -59,11 +59,11 @@ export async function GET(
   }
 
   const emptyDataStream = createUIMessageStream<ChatMessage>({
-    execute: () => {},
+    execute: () => {}
   });
 
   const stream = await streamContext.resumableStream(recentStreamId, () =>
-    emptyDataStream.pipeThrough(new JsonToSseTransformStream()),
+    emptyDataStream.pipeThrough(new JsonToSseTransformStream())
   );
 
   /*
@@ -93,14 +93,14 @@ export async function GET(
         writer.write({
           type: 'data-appendMessage',
           data: JSON.stringify(mostRecentMessage),
-          transient: true,
+          transient: true
         });
-      },
+      }
     });
 
     return new Response(
       restoredStream.pipeThrough(new JsonToSseTransformStream()),
-      { status: 200 },
+      { status: 200 }
     );
   }
 

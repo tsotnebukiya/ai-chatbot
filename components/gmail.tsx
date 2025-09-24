@@ -2,7 +2,13 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { MailIcon, SendIcon, ShieldCheckIcon, UserIcon } from 'lucide-react';
 import { format } from 'date-fns';
@@ -42,7 +48,9 @@ function formatDate(dateString: string): string {
   try {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    const diffInDays = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
     if (diffInDays === 0) {
       return format(date, 'h:mm a');
@@ -112,18 +120,22 @@ function EmailListItem({ email }: { email: GmailMessage }) {
   const _senderEmail = extractEmail(email.from);
 
   return (
-    <Card className={cn(
-      "cursor-pointer transition-all hover:shadow-md",
-      email.isUnread && "border-blue-200 bg-blue-50/50"
-    )}>
+    <Card
+      className={cn(
+        'cursor-pointer transition-all hover:shadow-md',
+        email.isUnread && 'border-blue-200 bg-blue-50/50'
+      )}
+    >
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex items-center gap-2">
-              <h4 className={cn(
-                "truncate font-medium text-sm",
-                email.isUnread && "font-semibold"
-              )}>
+              <h4
+                className={cn(
+                  'truncate font-medium text-sm',
+                  email.isUnread && 'font-semibold'
+                )}
+              >
                 {email.subject || 'No Subject'}
               </h4>
               {email.isUnread && (
@@ -164,7 +176,9 @@ export function SingleEmail({ email }: { email: GmailMessage }) {
     <Card className="max-w-3xl">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">{email.subject || 'No Subject'}</CardTitle>
+          <CardTitle className="text-lg">
+            {email.subject || 'No Subject'}
+          </CardTitle>
           <Badge variant="outline" className="text-xs">
             <MailIcon className="mr-1 h-3 w-3" />
             Gmail
@@ -176,7 +190,9 @@ export function SingleEmail({ email }: { email: GmailMessage }) {
             <span className="font-medium">From:</span>
             <span>{senderName}</span>
             {senderEmail !== senderName && (
-              <span className="text-muted-foreground">&lt;{senderEmail}&gt;</span>
+              <span className="text-muted-foreground">
+                &lt;{senderEmail}&gt;
+              </span>
             )}
           </div>
 
@@ -211,7 +227,9 @@ export function SingleEmail({ email }: { email: GmailMessage }) {
             {email.body ? (
               <div className="whitespace-pre-wrap text-sm">{email.body}</div>
             ) : (
-              <p className="text-muted-foreground text-sm">No body content available</p>
+              <p className="text-muted-foreground text-sm">
+                No body content available
+              </p>
             )}
           </div>
         </div>
@@ -220,7 +238,11 @@ export function SingleEmail({ email }: { email: GmailMessage }) {
   );
 }
 
-export function SendEmailConfirmation({ result }: { result: SendEmailResponse }) {
+export function SendEmailConfirmation({
+  result
+}: {
+  result: SendEmailResponse;
+}) {
   if (result.success) {
     return (
       <Card className="max-w-md">
@@ -325,7 +347,9 @@ export function Gmail({ data }: { data: any }) {
       <CardContent className="p-4">
         <div className="text-center">
           <MailIcon className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-          <p className="text-muted-foreground text-sm">Gmail data format not recognized</p>
+          <p className="text-muted-foreground text-sm">
+            Gmail data format not recognized
+          </p>
         </div>
       </CardContent>
     </Card>

@@ -14,12 +14,12 @@ interface DataStreamContextValue {
 const DataStreamContext = createContext<DataStreamContextValue | null>(null);
 
 export function DataStreamProvider({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) {
   const [dataStream, setDataStream] = useState<DataUIPart<CustomUIDataTypes>[]>(
-    [],
+    []
   );
 
   const value = useMemo(() => ({ dataStream, setDataStream }), [dataStream]);

@@ -2,7 +2,7 @@ import { mistral } from '@ai-sdk/mistral';
 import {
   customProvider,
   extractReasoningMiddleware,
-  wrapLanguageModel,
+  wrapLanguageModel
 } from 'ai';
 
 export const myProvider = customProvider({
@@ -10,8 +10,8 @@ export const myProvider = customProvider({
     'chat-model': mistral('mistral-large-latest'),
     'chat-model-reasoning': wrapLanguageModel({
       model: mistral('magistral-medium-2506'),
-      middleware: extractReasoningMiddleware({ tagName: 'think' }),
+      middleware: extractReasoningMiddleware({ tagName: 'think' })
     }),
-    'title-model': mistral('mistral-small-latest'),
-  },
+    'title-model': mistral('mistral-small-latest')
+  }
 });

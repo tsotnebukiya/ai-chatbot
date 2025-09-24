@@ -32,7 +32,7 @@ export const visibilityBySurface: Record<Surface, ErrorVisibility> = {
   vote: 'response',
   document: 'response',
   suggestions: 'response',
-  activate_gateway: 'response',
+  activate_gateway: 'response'
 };
 
 export class ChatSDKError extends Error {
@@ -62,12 +62,12 @@ export class ChatSDKError extends Error {
       console.error({
         code,
         message,
-        cause,
+        cause
       });
 
       return Response.json(
         { code: '', message: 'Something went wrong. Please try again later.' },
-        { status: statusCode },
+        { status: statusCode }
       );
     }
 

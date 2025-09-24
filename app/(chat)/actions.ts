@@ -3,7 +3,7 @@
 import { myProvider } from '@/lib/ai/providers';
 import {
   deleteMessagesByChatIdAfterTimestamp,
-  getMessageById,
+  getMessageById
 } from '@/lib/db/queries';
 import { generateText, type UIMessage } from 'ai';
 import { cookies } from 'next/headers';
@@ -14,7 +14,7 @@ export async function saveChatModelAsCookie(model: string) {
 }
 
 export async function getChatToolsFromCookie(
-  chatId: string,
+  chatId: string
 ): Promise<string[]> {
   const cookieStore = await cookies();
   const cookieValue = cookieStore.get('chat-tools')?.value || '{}';
@@ -28,7 +28,7 @@ export async function getChatToolsFromCookie(
 }
 
 export async function generateTitleFromUserMessage({
-  message,
+  message
 }: {
   message: UIMessage;
 }) {
@@ -40,7 +40,7 @@ export async function generateTitleFromUserMessage({
     - ensure it is not more than 80 characters long
     - the title should be a summary of the user's message
     - do not use quotes or colons`,
-    prompt: JSON.stringify(message),
+    prompt: JSON.stringify(message)
   });
 
   return title;
@@ -51,6 +51,6 @@ export async function deleteTrailingMessages({ id }: { id: string }) {
 
   await deleteMessagesByChatIdAfterTimestamp({
     chatId: message.chatId,
-    timestamp: message.createdAt,
+    timestamp: message.createdAt
   });
 }

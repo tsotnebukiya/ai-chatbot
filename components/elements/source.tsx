@@ -3,7 +3,7 @@
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
+  CollapsibleTrigger
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import { BookIcon, ChevronDownIcon } from 'lucide-react';
@@ -48,7 +48,7 @@ export const SourcesContent = ({
     className={cn(
       'mt-3 flex w-fit flex-col gap-2',
       'data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 outline-hidden data-[state=closed]:animate-out data-[state=open]:animate-in',
-      className,
+      className
     )}
     {...props}
   />

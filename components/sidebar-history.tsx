@@ -14,13 +14,13 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
-  useSidebar,
+  useSidebar
 } from '@/components/ui/sidebar';
 import type { Chat } from '@/lib/db/schema';
 import { fetcher } from '@/lib/utils';
@@ -71,14 +71,14 @@ const groupChatsByDate = (chats: Chat[]): GroupedChats => {
       yesterday: [],
       lastWeek: [],
       lastMonth: [],
-      older: [],
-    } as GroupedChats,
+      older: []
+    } as GroupedChats
   );
 };
 
 export function getChatHistoryPaginationKey(
   pageIndex: number,
-  previousPageData: ChatHistory,
+  previousPageData: ChatHistory
 ) {
   if (previousPageData && previousPageData.hasMore === false) {
     return null;
@@ -102,9 +102,9 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     setSize,
     isValidating,
     isLoading,
-    mutate,
+    mutate
   } = useSWRInfinite<ChatHistory>(getChatHistoryPaginationKey, fetcher, {
-    fallbackData: [],
+    fallbackData: []
   });
 
   const router = useRouter();
@@ -121,7 +121,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
   const handleDelete = async () => {
     const deletePromise = fetch(`/api/chat?id=${deleteId}`, {
-      method: 'DELETE',
+      method: 'DELETE'
     });
 
     toast.promise(deletePromise, {
@@ -131,14 +131,14 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
           if (chatHistories) {
             return chatHistories.map((chatHistory) => ({
               ...chatHistory,
-              chats: chatHistory.chats.filter((chat) => chat.id !== deleteId),
+              chats: chatHistory.chats.filter((chat) => chat.id !== deleteId)
             }));
           }
         });
 
         return 'Chat deleted successfully';
       },
-      error: 'Failed to delete chat',
+      error: 'Failed to delete chat'
     });
 
     setShowDeleteDialog(false);
@@ -177,7 +177,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                   className="h-4 max-w-(--skeleton-width) flex-1 rounded-md bg-sidebar-accent-foreground/10"
                   style={
                     {
-                      '--skeleton-width': `${item}%`,
+                      '--skeleton-width': `${item}%`
                     } as React.CSSProperties
                   }
                 />
@@ -209,7 +209,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
             {paginatedChatHistories &&
               (() => {
                 const chatsFromHistory = paginatedChatHistories.flatMap(
-                  (paginatedChatHistory) => paginatedChatHistory.chats,
+                  (paginatedChatHistory) => paginatedChatHistory.chats
                 );
 
                 const groupedChats = groupChatsByDate(chatsFromHistory);

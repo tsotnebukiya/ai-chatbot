@@ -5,9 +5,9 @@ export const authClient = createAuthClient({
   plugins: [
     {
       id: 'better-auth',
-      basePath: '/api/auth',
-    },
-  ],
+      basePath: '/api/auth'
+    }
+  ]
 });
 
 export const { signIn, signOut, signUp, useSession } = authClient;

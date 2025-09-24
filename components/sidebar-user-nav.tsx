@@ -10,20 +10,22 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import {
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarMenuItem
 } from '@/components/ui/sidebar';
 import { useRouter } from 'next/navigation';
 import { toast } from './toast';
 import { LoaderIcon } from './icons';
 
 export function SidebarUserNav({
-  user,
-}: { user: { email?: string; name?: string } }) {
+  user
+}: {
+  user: { email?: string; name?: string };
+}) {
   const router = useRouter();
   const session = authClient.useSession();
   const { setTheme, resolvedTheme } = useTheme();
@@ -88,7 +90,7 @@ export function SidebarUserNav({
                     toast({
                       type: 'error',
                       description:
-                        'Checking authentication status, please try again!',
+                        'Checking authentication status, please try again!'
                     });
 
                     return;

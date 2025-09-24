@@ -10,7 +10,7 @@ import {
   gte,
   inArray,
   lt,
-  type SQL,
+  type SQL
 } from 'drizzle-orm';
 
 import type { LanguageModelV2Usage } from '@ai-sdk/provider';
@@ -33,7 +33,7 @@ export async function getUser(email: string): Promise<Array<User>> {
   } catch (_error) {
     throw new ChatSDKError(
       'bad_request:database',
-      'Failed to get user by email',
+      'Failed to get user by email'
     );
   }
 }
@@ -42,14 +42,14 @@ export async function getUser(email: string): Promise<Array<User>> {
 export async function createUser(_email: string, _password: string) {
   throw new ChatSDKError(
     'bad_request:auth',
-    'User creation should be done through betterAuth API',
+    'User creation should be done through betterAuth API'
   );
 }
 
 export async function saveChat({
   id,
   userId,
-  title,
+  title
 }: {
   id: string;
   userId: string;
@@ -60,7 +60,7 @@ export async function saveChat({
       id,
       createdAt: new Date(),
       userId,
-      title,
+      title
     });
   } catch (_error) {
     throw new ChatSDKError('bad_request:database', 'Failed to save chat');
@@ -81,7 +81,7 @@ export async function deleteChatById({ id }: { id: string }) {
   } catch (_error) {
     throw new ChatSDKError(
       'bad_request:database',
-      'Failed to delete chat by id',
+      'Failed to delete chat by id'
     );
   }
 }
@@ -90,7 +90,7 @@ export async function getChatsByUserId({
   id,
   limit,
   startingAfter,
-  endingBefore,
+  endingBefore
 }: {
   id: string;
   limit: number;
@@ -107,7 +107,7 @@ export async function getChatsByUserId({
         .where(
           whereCondition
             ? and(whereCondition, eq(chat.userId, id))
-            : eq(chat.userId, id),
+            : eq(chat.userId, id)
         )
         .orderBy(desc(chat.createdAt))
         .limit(extendedLimit);
@@ -124,7 +124,7 @@ export async function getChatsByUserId({
       if (!selectedChat) {
         throw new ChatSDKError(
           'not_found:database',
-          `Chat with id ${startingAfter} not found`,
+          `Chat with id ${startingAfter} not found`
         );
       }
 
@@ -139,7 +139,7 @@ export async function getChatsByUserId({
       if (!selectedChat) {
         throw new ChatSDKError(
           'not_found:database',
-          `Chat with id ${endingBefore} not found`,
+          `Chat with id ${endingBefore} not found`
         );
       }
 
@@ -152,12 +152,12 @@ export async function getChatsByUserId({
 
     return {
       chats: hasMore ? filteredChats.slice(0, limit) : filteredChats,
-      hasMore,
+      hasMore
     };
   } catch (_error) {
     throw new ChatSDKError(
       'bad_request:database',
-      'Failed to get chats by user id',
+      'Failed to get chats by user id'
     );
   }
 }
@@ -176,7 +176,7 @@ export async function getChatById({ id }: { id: string }) {
 }
 
 export async function saveMessages({
-  messages,
+  messages
 }: {
   messages: Array<DBMessage>;
 }) {
@@ -197,7 +197,7 @@ export async function getMessagesByChatId({ id }: { id: string }) {
   } catch (_error) {
     throw new ChatSDKError(
       'bad_request:database',
-      'Failed to get messages by chat id',
+      'Failed to get messages by chat id'
     );
   }
 }
@@ -208,14 +208,14 @@ export async function getMessageById({ id }: { id: string }) {
   } catch (_error) {
     throw new ChatSDKError(
       'bad_request:database',
-      'Failed to get message by id',
+      'Failed to get message by id'
     );
   }
 }
 
 export async function deleteMessagesByChatIdAfterTimestamp({
   chatId,
-  timestamp,
+  timestamp
 }: {
   chatId: string;
   timestamp: Date;
@@ -225,7 +225,7 @@ export async function deleteMessagesByChatIdAfterTimestamp({
       .select({ id: message.id })
       .from(message)
       .where(
-        and(eq(message.chatId, chatId), gte(message.createdAt, timestamp)),
+        and(eq(message.chatId, chatId), gte(message.createdAt, timestamp))
       );
 
     const messageIds = messagesToDelete.map((message) => message.id);
@@ -236,20 +236,20 @@ export async function deleteMessagesByChatIdAfterTimestamp({
       return await db
         .delete(message)
         .where(
-          and(eq(message.chatId, chatId), inArray(message.id, messageIds)),
+          and(eq(message.chatId, chatId), inArray(message.id, messageIds))
         );
     }
   } catch (_error) {
     throw new ChatSDKError(
       'bad_request:database',
-      'Failed to delete messages by chat id after timestamp',
+      'Failed to delete messages by chat id after timestamp'
     );
   }
 }
 
 export async function updateChatLastContextById({
   chatId,
-  context,
+  context
 }: {
   chatId: string;
   // Store raw LanguageModelUsage to keep it simple
@@ -268,14 +268,14 @@ export async function updateChatLastContextById({
 
 export async function getMessageCountByUserId({
   id,
-  differenceInHours,
+  differenceInHours
 }: {
   id: string;
   differenceInHours: number;
 }) {
   try {
     const twentyFourHoursAgo = new Date(
-      Date.now() - differenceInHours * 60 * 60 * 1000,
+      Date.now() - differenceInHours * 60 * 60 * 1000
     );
 
     const [stats] = await db
@@ -286,8 +286,8 @@ export async function getMessageCountByUserId({
         and(
           eq(chat.userId, id),
           gte(message.createdAt, twentyFourHoursAgo),
-          eq(message.role, 'user'),
-        ),
+          eq(message.role, 'user')
+        )
       )
       .execute();
 
@@ -295,14 +295,14 @@ export async function getMessageCountByUserId({
   } catch (_error) {
     throw new ChatSDKError(
       'bad_request:database',
-      'Failed to get message count by user id',
+      'Failed to get message count by user id'
     );
   }
 }
 
 export async function createStreamId({
   streamId,
-  chatId,
+  chatId
 }: {
   streamId: string;
   chatId: string;
@@ -314,7 +314,7 @@ export async function createStreamId({
   } catch (_error) {
     throw new ChatSDKError(
       'bad_request:database',
-      'Failed to create stream id',
+      'Failed to create stream id'
     );
   }
 }
@@ -332,7 +332,7 @@ export async function getStreamIdsByChatId({ chatId }: { chatId: string }) {
   } catch (_error) {
     throw new ChatSDKError(
       'bad_request:database',
-      'Failed to get stream ids by chat id',
+      'Failed to get stream ids by chat id'
     );
   }
 }

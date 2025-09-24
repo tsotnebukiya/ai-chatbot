@@ -9,7 +9,7 @@ import {
   text,
   primaryKey,
   boolean,
-  foreignKey,
+  foreignKey
 } from 'drizzle-orm/pg-core';
 import type { LanguageModelV2Usage } from '@ai-sdk/provider';
 
@@ -25,7 +25,7 @@ export const user = pgTable('user', {
   updatedAt: timestamp('updated_at')
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
+    .notNull()
 });
 
 export const session = pgTable('session', {
@@ -40,7 +40,7 @@ export const session = pgTable('session', {
   userAgent: text('user_agent'),
   userId: text('user_id')
     .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
+    .references(() => user.id, { onDelete: 'cascade' })
 });
 
 export const account = pgTable('account', {
@@ -60,7 +60,7 @@ export const account = pgTable('account', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
+    .notNull()
 });
 
 export const verification = pgTable('verification', {
@@ -72,7 +72,7 @@ export const verification = pgTable('verification', {
   updatedAt: timestamp('updated_at')
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
+    .notNull()
 });
 
 export type User = InferSelectModel<typeof user>;
@@ -84,7 +84,7 @@ export const chat = pgTable('Chat', {
   userId: text('userId')
     .notNull()
     .references(() => user.id),
-  lastContext: jsonb('lastContext').$type<LanguageModelV2Usage | null>(),
+  lastContext: jsonb('lastContext').$type<LanguageModelV2Usage | null>()
 });
 
 export type Chat = InferSelectModel<typeof chat>;
@@ -97,7 +97,7 @@ export const message = pgTable('Message_v2', {
   role: varchar('role').notNull(),
   parts: json('parts').notNull(),
   attachments: json('attachments').notNull(),
-  createdAt: timestamp('createdAt').notNull(),
+  createdAt: timestamp('createdAt').notNull()
 });
 
 export type DBMessage = InferSelectModel<typeof message>;
@@ -107,15 +107,15 @@ export const stream = pgTable(
   {
     id: uuid('id').notNull().defaultRandom(),
     chatId: uuid('chatId').notNull(),
-    createdAt: timestamp('createdAt').notNull(),
+    createdAt: timestamp('createdAt').notNull()
   },
   (table) => ({
     pk: primaryKey({ columns: [table.id] }),
     chatRef: foreignKey({
       columns: [table.chatId],
-      foreignColumns: [chat.id],
-    }),
-  }),
+      foreignColumns: [chat.id]
+    })
+  })
 );
 
 export type Stream = InferSelectModel<typeof stream>;

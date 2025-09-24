@@ -7,7 +7,7 @@ export const listEmails = tool({
   description: 'List emails from Gmail inbox',
   inputSchema: z.object({
     maxResults: z.number().optional().default(10),
-    query: z.string().optional(),
+    query: z.string().optional()
   }),
   execute: async ({ maxResults, query }) => {
     try {
@@ -17,7 +17,7 @@ export const listEmails = tool({
         return {
           message:
             'Authentication required. Please sign in to use Gmail integration.',
-          setupRequired: true,
+          setupRequired: true
         };
       }
 
@@ -25,15 +25,15 @@ export const listEmails = tool({
       const tokenResponse = await auth.api.getAccessToken({
         body: {
           providerId: 'google',
-          userId: session.user.id,
-        },
+          userId: session.user.id
+        }
       });
 
       if (!tokenResponse?.accessToken) {
         return {
           message:
             'Gmail integration requires OAuth setup. Please link your Google account to use Gmail features.',
-          setupRequired: true,
+          setupRequired: true
         };
       }
 
@@ -42,20 +42,20 @@ export const listEmails = tool({
       // Build Gmail API query
       const searchQuery = query || 'is:unread';
       const url = new URL(
-        'https://gmail.googleapis.com/gmail/v1/users/me/messages',
+        'https://gmail.googleapis.com/gmail/v1/users/me/messages'
       );
       url.searchParams.append('maxResults', maxResults.toString());
       url.searchParams.append('q', searchQuery);
 
       const gmailResponse = await fetch(url.toString(), {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+          Authorization: `Bearer ${accessToken}`
+        }
       });
 
       if (!gmailResponse.ok) {
         throw new Error(
-          `Failed to fetch emails: ${gmailResponse.status} ${gmailResponse.statusText}`,
+          `Failed to fetch emails: ${gmailResponse.status} ${gmailResponse.statusText}`
         );
       }
 
@@ -68,9 +68,9 @@ export const listEmails = tool({
             `https://gmail.googleapis.com/gmail/v1/users/me/messages/${message.id}`,
             {
               headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+                Authorization: `Bearer ${accessToken}`
+              }
+            }
           );
 
           if (!detailResponse.ok) {
@@ -96,22 +96,22 @@ export const listEmails = tool({
             from,
             date,
             snippet: detail.snippet,
-            isUnread: detail.labelIds?.includes('UNREAD') || false,
+            isUnread: detail.labelIds?.includes('UNREAD') || false
           };
-        }),
+        })
       );
 
       return {
         messages: messages.filter(Boolean),
-        resultSizeEstimate: data.resultSizeEstimate,
+        resultSizeEstimate: data.resultSizeEstimate
       };
     } catch (error) {
       console.error('Error listing emails:', error);
       throw new Error(
-        `Failed to list emails: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to list emails: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
-  },
+  }
 });
 
 export const sendEmail = tool({
@@ -121,7 +121,7 @@ export const sendEmail = tool({
     subject: z.string(),
     body: z.string(),
     cc: z.string().email().optional(),
-    bcc: z.string().email().optional(),
+    bcc: z.string().email().optional()
   }),
   execute: async ({ to, subject, body, cc, bcc }) => {
     try {
@@ -131,7 +131,7 @@ export const sendEmail = tool({
         return {
           message:
             'Authentication required. Please sign in to use Gmail integration.',
-          setupRequired: true,
+          setupRequired: true
         };
       }
 
@@ -139,15 +139,15 @@ export const sendEmail = tool({
       const tokenResponse = await auth.api.getAccessToken({
         body: {
           providerId: 'google',
-          userId: session.user.id,
-        },
+          userId: session.user.id
+        }
       });
 
       if (!tokenResponse?.accessToken) {
         return {
           message:
             'Gmail integration requires OAuth setup. Please link your Google account to use Gmail features.',
-          setupRequired: true,
+          setupRequired: true
         };
       }
 
@@ -162,7 +162,7 @@ export const sendEmail = tool({
         ...(cc ? [`Cc: ${cc}`] : []),
         ...(bcc ? [`Bcc: ${bcc}`] : []),
         '',
-        body,
+        body
       ].join('\n');
 
       // Base64 encode the email content
@@ -178,12 +178,12 @@ export const sendEmail = tool({
           method: 'POST',
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            raw: encodedEmail,
-          }),
-        },
+            raw: encodedEmail
+          })
+        }
       );
 
       if (!sendResponse.ok) {
@@ -194,21 +194,21 @@ export const sendEmail = tool({
       return {
         success: true,
         messageId: result.id,
-        threadId: result.threadId,
+        threadId: result.threadId
       };
     } catch (error) {
       console.error('Error sending email:', error);
       throw new Error(
-        `Failed to send email: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to send email: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
-  },
+  }
 });
 
 export const getEmail = tool({
   description: 'Get a specific email by ID',
   inputSchema: z.object({
-    messageId: z.string(),
+    messageId: z.string()
   }),
   execute: async ({ messageId }) => {
     try {
@@ -218,7 +218,7 @@ export const getEmail = tool({
         return {
           message:
             'Authentication required. Please sign in to use Gmail integration.',
-          setupRequired: true,
+          setupRequired: true
         };
       }
 
@@ -226,15 +226,15 @@ export const getEmail = tool({
       const tokenResponse = await auth.api.getAccessToken({
         body: {
           providerId: 'google',
-          userId: session.user.id,
-        },
+          userId: session.user.id
+        }
       });
 
       if (!tokenResponse?.accessToken) {
         return {
           message:
             'Gmail integration requires OAuth setup. Please link your Google account to use Gmail features.',
-          setupRequired: true,
+          setupRequired: true
         };
       }
 
@@ -244,9 +244,9 @@ export const getEmail = tool({
         `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}`,
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
+            Authorization: `Bearer ${accessToken}`
+          }
+        }
       );
 
       if (!gmailResponse.ok) {
@@ -268,17 +268,17 @@ export const getEmail = tool({
       let body = '';
       if (message.payload.body?.data) {
         const decodedData = atob(
-          message.payload.body.data.replace(/-/g, '+').replace(/_/g, '/'),
+          message.payload.body.data.replace(/-/g, '+').replace(/_/g, '/')
         );
         body = decodeURIComponent(decodedData);
       } else if (message.payload.parts) {
         // Handle multipart messages
         const textPart = message.payload.parts.find(
-          (part: any) => part.mimeType === 'text/plain',
+          (part: any) => part.mimeType === 'text/plain'
         );
         if (textPart?.body?.data) {
           const decodedData = atob(
-            textPart.body.data.replace(/-/g, '+').replace(/_/g, '/'),
+            textPart.body.data.replace(/-/g, '+').replace(/_/g, '/')
           );
           body = decodeURIComponent(decodedData);
         }
@@ -294,13 +294,13 @@ export const getEmail = tool({
         body,
         snippet: message.snippet,
         isUnread: message.labelIds?.includes('UNREAD') || false,
-        labelIds: message.labelIds || [],
+        labelIds: message.labelIds || []
       };
     } catch (error) {
       console.error('Error getting email:', error);
       throw new Error(
-        `Failed to get email: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to get email: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
-  },
+  }
 });

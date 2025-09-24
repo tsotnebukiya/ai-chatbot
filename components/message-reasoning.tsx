@@ -3,7 +3,7 @@
 import {
   Reasoning,
   ReasoningTrigger,
-  ReasoningContent,
+  ReasoningContent
 } from './elements/reasoning';
 
 interface MessageReasoningProps {
@@ -13,7 +13,7 @@ interface MessageReasoningProps {
 
 export function MessageReasoning({
   isLoading,
-  reasoning,
+  reasoning
 }: MessageReasoningProps) {
   return (
     <Reasoning

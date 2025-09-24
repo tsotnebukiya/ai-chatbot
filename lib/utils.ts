@@ -2,7 +2,7 @@ import type {
   CoreAssistantMessage,
   CoreToolMessage,
   UIMessage,
-  UIMessagePart,
+  UIMessagePart
 } from 'ai';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -28,7 +28,7 @@ export const fetcher = async (url: string) => {
 
 export async function fetchWithErrorHandlers(
   input: RequestInfo | URL,
-  init?: RequestInit,
+  init?: RequestInit
 ) {
   try {
     const response = await fetch(input, init);
@@ -72,7 +72,7 @@ export function getMostRecentUserMessage(messages: Array<UIMessage>) {
 }
 
 export function getTrailingMessageId({
-  messages,
+  messages
 }: {
   messages: Array<ResponseMessage>;
 }): string | null {
@@ -93,8 +93,8 @@ export function convertToUIMessages(messages: DBMessage[]): ChatMessage[] {
     role: message.role as 'user' | 'assistant' | 'system',
     parts: message.parts as UIMessagePart<CustomUIDataTypes, ChatTools>[],
     metadata: {
-      createdAt: formatISO(message.createdAt),
-    },
+      createdAt: formatISO(message.createdAt)
+    }
   }));
 }
 

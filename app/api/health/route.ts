@@ -10,15 +10,15 @@ export async function GET() {
     return NextResponse.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      database: 'connected',
+      database: 'connected'
     });
   } catch (error) {
     return NextResponse.json(
       {
         status: 'unhealthy',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : 'Unknown error'
       },
-      { status: 503 },
+      { status: 503 }
     );
   }
 }

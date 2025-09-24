@@ -38,9 +38,10 @@ async function geocodeLocation(location: string) {
 }
 
 export const getWeather = tool({
-  description: 'Get the current weather at a location. Provide city name (e.g., "London") or coordinates (e.g., "51.5074,-0.1278")',
+  description:
+    'Get the current weather at a location. Provide city name (e.g., "London") or coordinates (e.g., "51.5074,-0.1278")',
   inputSchema: z.object({
-    location: z.string().describe('City name or latitude,longitude coordinates'),
+    location: z.string().describe('City name or latitude,longitude coordinates')
   }),
   execute: async ({ location }) => {
     try {
@@ -49,7 +50,7 @@ export const getWeather = tool({
 
       // Get weather data using the coordinates
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${coords.latitude}&longitude=${coords.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m&hourly=temperature_2m&daily=sunrise,sunset,weather_code&timezone=auto`,
+        `https://api.open-meteo.com/v1/forecast?latitude=${coords.latitude}&longitude=${coords.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m&hourly=temperature_2m&daily=sunrise,sunset,weather_code&timezone=auto`
       );
 
       if (!response.ok) {
@@ -68,7 +69,9 @@ export const getWeather = tool({
         }
       };
     } catch (error) {
-      throw new Error(`Weather lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Weather lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
-  },
+  }
 });

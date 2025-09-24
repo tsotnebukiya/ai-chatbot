@@ -53,8 +53,8 @@ export function createChatStream({
   const enabledCategories = enabledTools.includes('gmail')
     ? ['weather', 'gmail', 'webSearch']
     : enabledTools.includes('search')
-    ? ['weather', 'webSearch']
-    : ['weather'];
+      ? ['weather', 'webSearch']
+      : ['weather'];
   const enabledToolNames = enabledCategories.flatMap((category) => [
     ...TOOL_CATEGORIES[category as ToolCategory]
   ]);

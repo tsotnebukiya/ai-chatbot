@@ -10,12 +10,12 @@ export const chatModels: Array<ChatModel> = [
   {
     id: 'chat-model',
     name: 'Mistral Large',
-    description: 'Flagship Mistral general model for high‑quality chat.',
+    description: 'Flagship Mistral general model for high‑quality chat.'
   },
   {
     id: 'chat-model-reasoning',
     name: 'Mistral Magistral Medium (Reasoning)',
     description:
-      "Mistral's specialized reasoning model that shows its step-by-step thought process.",
-  },
+      "Mistral's specialized reasoning model that shows its step-by-step thought process."
+  }
 ];
