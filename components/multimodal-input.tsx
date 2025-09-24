@@ -371,12 +371,14 @@ export const MultimodalInput = memo(
 
 function PureAttachmentsButton({
   fileInputRef,
-  status
+  status,
+  selectedModelId
 }: {
   fileInputRef: React.MutableRefObject<HTMLInputElement | null>;
   status: UseChatHelpers<ChatMessage>['status'];
   selectedModelId: string;
 }) {
+  const isReasoningModel = selectedModelId === 'chat-model-reasoning';
   return (
     <Button
       data-testid="attachments-button"
@@ -385,7 +387,7 @@ function PureAttachmentsButton({
         event.preventDefault();
         fileInputRef.current?.click();
       }}
-      disabled={status !== 'ready'}
+      disabled={status !== 'ready' || isReasoningModel}
       variant="ghost"
     >
       <PaperclipIcon size={14} style={{ width: 14, height: 14 }} />
