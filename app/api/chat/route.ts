@@ -1,7 +1,6 @@
 import { generateTitleFromUserMessage } from '@/app/(chat)/actions';
 import { createChatStream } from '@/lib/ai/agent';
 import type { ChatModel } from '@/lib/ai/models';
-import type { RequestHints } from '@/lib/ai/prompts';
 import { requireAuth } from '@/lib/auth/session';
 import {
   createStreamId,
@@ -14,7 +13,6 @@ import {
 import { ChatSDKError } from '@/lib/errors';
 import type { ChatMessage } from '@/lib/types';
 import { convertToUIMessages, generateUUID } from '@/lib/utils';
-import { geolocation } from '@vercel/functions';
 import { JsonToSseTransformStream } from 'ai';
 import { after } from 'next/server';
 import {
@@ -85,14 +83,6 @@ export async function POST(request: Request) {
 
     const messagesFromDb = await getMessagesByChatId({ id });
     const uiMessages = [...convertToUIMessages(messagesFromDb), message];
-    const { longitude, latitude, city, country } = geolocation(request);
-
-    const requestHints: RequestHints = {
-      longitude,
-      latitude,
-      city,
-      country,
-    };
 
     await saveMessages({
       messages: [
@@ -114,7 +104,6 @@ export async function POST(request: Request) {
       chatId: id,
       enabledTools,
       messages: uiMessages,
-      requestHints,
       selectedChatModel,
     });
     const streamContext = getStreamContext();

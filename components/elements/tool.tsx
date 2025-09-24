@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
+  CollapsibleTrigger
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import type { ToolUIPart } from 'ai';
@@ -14,7 +14,7 @@ import {
   CircleIcon,
   ClockIcon,
   WrenchIcon,
-  XCircleIcon,
+  XCircleIcon
 } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
 import { CodeBlock } from './code-block';
@@ -39,14 +39,14 @@ const getStatusBadge = (status: ToolUIPart['state']) => {
     'input-streaming': 'Pending',
     'input-available': 'Running',
     'output-available': 'Completed',
-    'output-error': 'Error',
+    'output-error': 'Error'
   } as const;
 
   const icons = {
     'input-streaming': <CircleIcon className="size-4" />,
     'input-available': <ClockIcon className="size-4 animate-pulse" />,
     'output-available': <CheckCircleIcon className="size-4 text-green-600" />,
-    'output-error': <XCircleIcon className="size-4 text-red-600" />,
+    'output-error': <XCircleIcon className="size-4 text-red-600" />
   } as const;
 
   return (
@@ -69,7 +69,7 @@ export const ToolHeader = ({
   <CollapsibleTrigger
     className={cn(
       'flex w-full min-w-0 items-center justify-between gap-2 p-3',
-      className,
+      className
     )}
     {...props}
   >
@@ -90,7 +90,7 @@ export const ToolContent = ({ className, ...props }: ToolContentProps) => (
   <CollapsibleContent
     className={cn(
       'data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 text-popover-foreground outline-hidden data-[state=closed]:animate-out data-[state=open]:animate-in',
-      className,
+      className
     )}
     {...props}
   />
@@ -105,7 +105,7 @@ export const ToolInput = ({ className, input, ...props }: ToolInputProps) => (
     <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
       Parameters
     </h4>
-    <div className="rounded-md bg-muted/50">
+    <div className="rounded-md">
       <CodeBlock code={JSON.stringify(input, null, 2)} language="json" />
     </div>
   </div>
@@ -134,9 +134,7 @@ export const ToolOutput = ({
       <div
         className={cn(
           'overflow-x-auto rounded-md text-xs [&_table]:w-full',
-          errorText
-            ? 'bg-destructive/10 text-destructive'
-            : 'bg-muted/50 text-foreground',
+          errorText ? 'bg-destructive/10 text-destructive' : 'text-foreground'
         )}
       >
         {errorText && <div>{errorText}</div>}

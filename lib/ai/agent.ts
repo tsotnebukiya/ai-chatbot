@@ -6,10 +6,10 @@ import {
   smoothStream,
   stepCountIs,
   streamText,
-  type LanguageModelUsage,
+  type LanguageModelUsage
 } from 'ai';
 import { saveMessages, updateChatLastContextById } from '../db/queries';
-import { systemPrompt, type RequestHints } from './prompts';
+import { regularPrompt } from './prompts';
 import { myProvider } from './providers';
 import { getWeather } from './tools/get-weather';
 import { getEmail, listEmails, sendEmail } from './tools/gmail';
@@ -19,7 +19,7 @@ const ALL_TOOLS = {
   getWeather,
   listEmails,
   sendEmail,
-  getEmail,
+  getEmail
 } as const;
 
 type ToolName = keyof typeof ALL_TOOLS;
@@ -27,7 +27,7 @@ type ToolName = keyof typeof ALL_TOOLS;
 // Tool categories
 const TOOL_CATEGORIES = {
   weather: ['getWeather'] as const,
-  gmail: ['listEmails', 'sendEmail', 'getEmail'] as const,
+  gmail: ['listEmails', 'sendEmail', 'getEmail'] as const
 } as const;
 
 type ToolCategory = keyof typeof TOOL_CATEGORIES;
@@ -36,7 +36,6 @@ export interface CreateChatStreamParams {
   messages: ChatMessage[];
   enabledTools: string[];
   selectedChatModel: string;
-  requestHints: RequestHints;
   chatId: string;
 }
 
@@ -44,8 +43,7 @@ export function createChatStream({
   messages,
   enabledTools,
   selectedChatModel,
-  requestHints,
-  chatId,
+  chatId
 }: CreateChatStreamParams) {
   let finalUsage: LanguageModelUsage | undefined;
 
@@ -53,7 +51,7 @@ export function createChatStream({
     ? ['weather', 'gmail']
     : ['weather'];
   const enabledToolNames = enabledCategories.flatMap((category) => [
-    ...TOOL_CATEGORIES[category as ToolCategory],
+    ...TOOL_CATEGORIES[category as ToolCategory]
   ]);
   const toolsObject: Record<
     string,
@@ -68,27 +66,27 @@ export function createChatStream({
     execute: ({ writer: dataStream }) => {
       const result = streamText({
         model: myProvider.languageModel(selectedChatModel),
-        system: systemPrompt({ selectedChatModel, requestHints }),
+        system: regularPrompt,
         messages: convertToModelMessages(messages),
         stopWhen: stepCountIs(5),
         experimental_transform: smoothStream({ chunking: 'word' }),
         tools: toolsObject,
         experimental_telemetry: {
           isEnabled: process.env.NODE_ENV === 'production',
-          functionId: 'stream-text',
+          functionId: 'stream-text'
         },
         onFinish: ({ usage }) => {
           finalUsage = usage;
           dataStream.write({ type: 'data-usage', data: usage });
-        },
+        }
       });
 
       result.consumeStream();
 
       dataStream.merge(
         result.toUIMessageStream({
-          sendReasoning: true,
-        }),
+          sendReasoning: true
+        })
       );
     },
     generateId: generateUUID,
@@ -100,15 +98,15 @@ export function createChatStream({
           parts: message.parts,
           createdAt: new Date(),
           attachments: [],
-          chatId,
-        })),
+          chatId
+        }))
       });
 
       if (finalUsage) {
         try {
           await updateChatLastContextById({
             chatId,
-            context: finalUsage,
+            context: finalUsage
           });
         } catch (err) {
           console.warn('Unable to persist last usage for chat', chatId, err);
@@ -117,6 +115,6 @@ export function createChatStream({
     },
     onError: () => {
       return 'Oops, an error occurred!';
-    },
+    }
   });
 }
