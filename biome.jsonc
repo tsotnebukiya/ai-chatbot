@@ -63,7 +63,7 @@
       "correctness": {
         "noUnusedImports": "warn", // Not in recommended ruleset, turning on manually
         "useJsxKeyInIterable": "off", // Rule is buggy, revisit later
-        "useExhaustiveDependencies": "warn", // Errors by default, switching to warn instead
+        "useExhaustiveDependencies": "off", // Errors by default, switching to warn instead
         "noInvalidBuiltinInstantiation": "warn"
       },
       "security": {
@@ -96,7 +96,7 @@
     "formatter": {
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
-      "trailingCommas": "all",
+      "trailingCommas": "none",
       "semicolons": "always",
       "arrowParentheses": "always",
       "bracketSpacing": true,

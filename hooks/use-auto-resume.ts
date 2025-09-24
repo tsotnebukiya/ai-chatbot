@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
-import type { UseChatHelpers } from '@ai-sdk/react';
-import type { ChatMessage } from '@/lib/types';
 import { useDataStream } from '@/components/data-stream-provider';
+import type { ChatMessage } from '@/lib/types';
+import type { UseChatHelpers } from '@ai-sdk/react';
+import { useEffect } from 'react';
 
 export interface UseAutoResumeParams {
   autoResume: boolean;
@@ -16,7 +16,7 @@ export function useAutoResume({
   autoResume,
   initialMessages,
   resumeStream,
-  setMessages,
+  setMessages
 }: UseAutoResumeParams) {
   const { dataStream } = useDataStream();
 
@@ -28,9 +28,6 @@ export function useAutoResume({
     if (mostRecentMessage?.role === 'user') {
       resumeStream();
     }
-
-    // we intentionally run this once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

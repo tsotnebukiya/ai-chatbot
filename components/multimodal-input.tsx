@@ -32,14 +32,14 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
-  PromptInputTools,
+  PromptInputTools
 } from './elements/prompt-input';
 import {
   ArrowUpIcon,
   ChevronDownIcon,
   CpuIcon,
   PaperclipIcon,
-  StopIcon,
+  StopIcon
 } from './icons';
 import { PreviewAttachment } from './preview-attachment';
 import { SuggestedActions } from './suggested-actions';
@@ -57,11 +57,9 @@ function PureMultimodalInput({
   messages,
   setMessages,
   sendMessage,
-  className,
   selectedModelId,
-  usage,
   enabledTools,
-  onEnabledToolsChange,
+  onEnabledToolsChange
 }: {
   chatId: string;
   input: string;
@@ -102,7 +100,7 @@ function PureMultimodalInput({
 
   const [localStorageInput, setLocalStorageInput] = useLocalStorage(
     'input',
-    '',
+    ''
   );
 
   useEffect(() => {
@@ -138,13 +136,13 @@ function PureMultimodalInput({
           type: 'file' as const,
           url: attachment.url,
           name: attachment.name,
-          mediaType: attachment.contentType,
+          mediaType: attachment.contentType
         })),
         {
           type: 'text',
-          text: input,
-        },
-      ],
+          text: input
+        }
+      ]
     });
 
     setAttachments([]);
@@ -156,14 +154,15 @@ function PureMultimodalInput({
       textareaRef.current?.focus();
     }
   }, [
-    input, 
-    setInput, 
-    attachments, 
-    sendMessage, 
-    setAttachments, 
-    setLocalStorageInput, 
-    width, 
+    input,
+    setInput,
+    attachments,
+    sendMessage,
+    setAttachments,
+    setLocalStorageInput,
+    width,
     chatId,
+    resetHeight
   ]);
 
   const uploadFile = async (file: File) => {
@@ -173,7 +172,7 @@ function PureMultimodalInput({
     try {
       const response = await fetch('/api/files/upload', {
         method: 'POST',
-        body: formData,
+        body: formData
       });
 
       if (response.ok) {
@@ -183,16 +182,15 @@ function PureMultimodalInput({
         return {
           url,
           name: pathname,
-          contentType: contentType,
+          contentType: contentType
         };
       }
       const { error } = await response.json();
       toast.error(error);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to upload file, please try again!');
     }
   };
-
 
   const handleFileChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -204,12 +202,12 @@ function PureMultimodalInput({
         const uploadPromises = files.map((file) => uploadFile(file));
         const uploadedAttachments = await Promise.all(uploadPromises);
         const successfullyUploadedAttachments = uploadedAttachments.filter(
-          (attachment) => attachment !== undefined,
+          (attachment) => attachment !== undefined
         );
 
         setAttachments((currentAttachments) => [
           ...currentAttachments,
-          ...successfullyUploadedAttachments,
+          ...successfullyUploadedAttachments
         ]);
       } catch (error) {
         console.error('Error uploading files!', error);
@@ -217,7 +215,7 @@ function PureMultimodalInput({
         setUploadQueue([]);
       }
     },
-    [setAttachments],
+    [setAttachments]
   );
 
   const { isAtBottom, scrollToBottom } = useScrollToBottom();
@@ -292,7 +290,7 @@ function PureMultimodalInput({
                 attachment={attachment}
                 onRemove={() => {
                   setAttachments((currentAttachments) =>
-                    currentAttachments.filter((a) => a.url !== attachment.url),
+                    currentAttachments.filter((a) => a.url !== attachment.url)
                   );
                   if (fileInputRef.current) {
                     fileInputRef.current.value = '';
@@ -307,7 +305,7 @@ function PureMultimodalInput({
                 attachment={{
                   url: '',
                   name: filename,
-                  contentType: '',
+                  contentType: ''
                 }}
                 isUploading={true}
               />
@@ -368,13 +366,13 @@ export const MultimodalInput = memo(
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
     if (!equal(prevProps.enabledTools, nextProps.enabledTools)) return false;
     return false;
-  },
+  }
 );
 
 function PureAttachmentsButton({
   fileInputRef,
   status,
-  selectedModelId,
+  selectedModelId
 }: {
   fileInputRef: React.MutableRefObject<HTMLInputElement | null>;
   status: UseChatHelpers<ChatMessage>['status'];
@@ -401,14 +399,14 @@ function PureAttachmentsButton({
 const AttachmentsButton = memo(PureAttachmentsButton);
 
 function PureModelSelectorCompact({
-  selectedModelId,
+  selectedModelId
 }: {
   selectedModelId: string;
 }) {
   const [optimisticModelId, setOptimisticModelId] = useState(selectedModelId);
 
   const selectedModel = chatModels.find(
-    (model) => model.id === optimisticModelId,
+    (model) => model.id === optimisticModelId
   );
 
   return (
@@ -460,7 +458,7 @@ const ModelSelectorCompact = memo(PureModelSelectorCompact);
 
 function PureStopButton({
   stop,
-  setMessages,
+  setMessages
 }: {
   stop: () => void;
   setMessages: UseChatHelpers<ChatMessage>['setMessages'];

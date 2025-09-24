@@ -1,18 +1,18 @@
 'use client';
 
-import { Button } from './ui/button';
+import { deleteTrailingMessages } from '@/app/(chat)/actions';
+import type { ChatMessage } from '@/lib/types';
+import { getTextFromMessage } from '@/lib/utils';
+import type { UseChatHelpers } from '@ai-sdk/react';
 import {
   type Dispatch,
   type SetStateAction,
   useEffect,
   useRef,
-  useState,
+  useState
 } from 'react';
+import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { deleteTrailingMessages } from '@/app/(chat)/actions';
-import type { UseChatHelpers } from '@ai-sdk/react';
-import type { ChatMessage } from '@/lib/types';
-import { getTextFromMessage } from '@/lib/utils';
 
 export type MessageEditorProps = {
   message: ChatMessage;
@@ -25,12 +25,12 @@ export function MessageEditor({
   message,
   setMode,
   setMessages,
-  regenerate,
+  regenerate
 }: MessageEditorProps) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const [draftContent, setDraftContent] = useState<string>(
-    getTextFromMessage(message),
+    getTextFromMessage(message)
   );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -81,7 +81,7 @@ export function MessageEditor({
             setIsSubmitting(true);
 
             await deleteTrailingMessages({
-              id: message.id,
+              id: message.id
             });
 
             setMessages((messages) => {
@@ -90,7 +90,7 @@ export function MessageEditor({
               if (index !== -1) {
                 const updatedMessage: ChatMessage = {
                   ...message,
-                  parts: [{ type: 'text', text: draftContent }],
+                  parts: [{ type: 'text', text: draftContent }]
                 };
 
                 return [...messages.slice(0, index), updatedMessage];

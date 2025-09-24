@@ -70,7 +70,7 @@ export function AuthBetter({ mode, redirectTo = '/' }: AuthFormProps) {
           router.push(redirectTo);
         }
       }
-    } catch (err) {
+    } catch (_err) {
       setError('An unexpected error occurred');
     } finally {
       setIsLoading(false);
@@ -86,7 +86,7 @@ export function AuthBetter({ mode, redirectTo = '/' }: AuthFormProps) {
         provider,
         callbackURL: redirectTo,
       });
-    } catch (err) {
+    } catch (_err) {
       setError(`Failed to sign in with ${provider}`);
       setIsLoading(false);
     }

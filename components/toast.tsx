@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useEffect, useRef, useState, type ReactNode } from 'react';
+import { cn } from '@/lib/utils';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { toast as sonnerToast } from 'sonner';
 import { CheckCircleFillIcon, WarningIcon } from './icons';
-import { cn } from '@/lib/utils';
 
 const iconsByType: Record<'success' | 'error', ReactNode> = {
   success: <CheckCircleFillIcon />,
-  error: <WarningIcon />,
+  error: <WarningIcon />
 };
 
 export function toast(props: Omit<ToastProps, 'id'>) {
@@ -46,14 +46,14 @@ function Toast(props: ToastProps) {
         key={id}
         className={cn(
           'flex toast-mobile:w-fit w-full flex-row gap-3 rounded-lg bg-zinc-100 p-3',
-          multiLine ? 'items-start' : 'items-center',
+          multiLine ? 'items-start' : 'items-center'
         )}
       >
         <div
           data-type={type}
           className={cn(
             'data-[type=error]:text-red-600 data-[type=success]:text-green-600',
-            { 'pt-1': multiLine },
+            { 'pt-1': multiLine }
           )}
         >
           {iconsByType[type]}
