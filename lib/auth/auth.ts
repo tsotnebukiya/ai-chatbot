@@ -1,6 +1,8 @@
+/** biome-ignore-all lint/style/noNonNullAssertion: Required for conditional Google auth configuration */
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db } from '../db';
+import { env, features } from '../env';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -10,15 +12,17 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false
   },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      redirectURI: `${process.env.BETTER_AUTH_URL || ''}/api/auth/callback/google`,
-      accessType: 'offline',
-      prompt: 'consent'
-    }
-  },
+  socialProviders: features.hasGoogleAuth()
+    ? {
+        google: {
+          clientId: env.GOOGLE_CLIENT_ID!,
+          clientSecret: env.GOOGLE_CLIENT_SECRET!,
+          redirectURI: `${env.BETTER_AUTH_URL}/api/auth/callback/google`,
+          accessType: 'offline',
+          prompt: 'consent'
+        }
+      }
+    : undefined,
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
@@ -32,13 +36,6 @@ export const auth = betterAuth({
     window: 60, // 1 minute
     max: 100 // 100 requests per window
   }
-  // advanced: {
-  //   useSecureCookies: process.env.NODE_ENV === 'production',
-  //   cookiePrefix: 'better-auth',
-  //   crossSubDomainCookies: {
-  //     enabled: false,
-  //   },
-  // },
 });
 
 export type Session = typeof auth.$Infer.Session;

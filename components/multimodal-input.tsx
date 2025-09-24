@@ -18,6 +18,7 @@ import { saveChatModelAsCookie } from '@/app/(chat)/actions';
 import { SelectItem } from '@/components/ui/select';
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
 import { chatModels } from '@/lib/ai/models';
+import type { FeatureFlags } from '@/lib/config/features';
 import type { Attachment, ChatMessage } from '@/lib/types';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import * as SelectPrimitive from '@radix-ui/react-select';
@@ -59,7 +60,8 @@ function PureMultimodalInput({
   sendMessage,
   selectedModelId,
   enabledTools,
-  onEnabledToolsChange
+  onEnabledToolsChange,
+  featureFlags
 }: {
   chatId: string;
   input: string;
@@ -76,6 +78,7 @@ function PureMultimodalInput({
   usage?: LanguageModelUsage;
   enabledTools: string[];
   onEnabledToolsChange: (tools: string[]) => void;
+  featureFlags: FeatureFlags;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -187,8 +190,10 @@ function PureMultimodalInput({
       }
       const { error } = await response.json();
       toast.error(error);
+      return null;
     } catch (_error) {
       toast.error('Failed to upload file, please try again!');
+      return null;
     }
   };
 
@@ -202,7 +207,8 @@ function PureMultimodalInput({
         const uploadPromises = files.map((file) => uploadFile(file));
         const uploadedAttachments = await Promise.all(uploadPromises);
         const successfullyUploadedAttachments = uploadedAttachments.filter(
-          (attachment) => attachment !== undefined
+          (attachment): attachment is NonNullable<typeof attachment> =>
+            attachment !== null
         );
 
         setAttachments((currentAttachments) => [
@@ -329,14 +335,17 @@ function PureMultimodalInput({
         </div>
         <PromptInputToolbar className="!border-top-0 border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!">
           <PromptInputTools className="gap-0 sm:gap-0.5">
-            <AttachmentsButton
-              fileInputRef={fileInputRef}
-              status={status}
-              selectedModelId={selectedModelId}
-            />
+            {featureFlags.hasFileUpload && (
+              <AttachmentsButton
+                fileInputRef={fileInputRef}
+                status={status}
+                selectedModelId={selectedModelId}
+              />
+            )}
             <ToolSelector
               enabledTools={enabledTools}
               onEnabledToolsChange={onEnabledToolsChange}
+              featureFlags={featureFlags}
             />
             <ModelSelectorCompact selectedModelId={selectedModelId} />
           </PromptInputTools>

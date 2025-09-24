@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { requireAuth } from '@/lib/auth/session';
+import { env } from '@/lib/env';
 
 // Use Blob instead of File since File is not available in Node.js environment
 const FileSchema = z.object({
@@ -19,6 +20,13 @@ const FileSchema = z.object({
 
 export async function POST(request: Request) {
   await requireAuth();
+
+  if (!env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json(
+      { error: 'File upload is not configured. Please add BLOB_READ_WRITE_TOKEN to your environment variables.' },
+      { status: 503 }
+    );
+  }
 
   if (request.body === null) {
     return new Response('Request body is empty', { status: 400 });

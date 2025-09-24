@@ -1,5 +1,6 @@
 import { tool } from 'ai';
 import { z } from 'zod';
+import { env } from '../../../lib/env';
 
 export const webSearch = tool({
   description: 'Search the web for current news',
@@ -18,7 +19,7 @@ export const webSearch = tool({
   }),
   execute: async ({ query, maxResults, searchDepth }) => {
     try {
-      const apiKey = process.env.TAVILY_API_KEY;
+      const apiKey = env.TAVILY_API_KEY;
 
       const response = await fetch('https://api.tavily.com/search', {
         method: 'POST',

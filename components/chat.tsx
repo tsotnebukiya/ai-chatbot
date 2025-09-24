@@ -25,6 +25,7 @@ import { unstable_serialize } from 'swr/infinite';
 import { useDataStream } from './data-stream-provider';
 import { Messages } from './messages';
 import { MultimodalInput } from './multimodal-input';
+import type { FeatureFlags } from '@/lib/config/features';
 import { getChatHistoryPaginationKey } from './sidebar-history';
 import { toast } from './toast';
 
@@ -35,7 +36,8 @@ export function Chat({
   initialEnabledTools,
   isReadonly,
   autoResume,
-  initialLastContext
+  initialLastContext,
+  featureFlags
 }: {
   id: string;
   initialMessages: ChatMessage[];
@@ -45,6 +47,7 @@ export function Chat({
   session: Session;
   autoResume: boolean;
   initialLastContext?: LanguageModelUsage;
+  featureFlags: FeatureFlags;
 }) {
   const { mutate } = useSWRConfig();
   const { setDataStream } = useDataStream();
@@ -178,6 +181,7 @@ export function Chat({
                 setEnabledTools(tools);
                 saveChatToolsToClientCookie(id, tools);
               }}
+              featureFlags={featureFlags}
             />
           )}
         </div>

@@ -5,6 +5,7 @@ import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { generateUUID } from '@/lib/utils';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 import { getSession } from '@/lib/auth/session';
+import { getFeatureFlags } from '@/lib/config/features';
 import { redirect } from 'next/navigation';
 
 export default async function Page() {
@@ -15,6 +16,7 @@ export default async function Page() {
   }
 
   const id = generateUUID();
+  const featureFlags = getFeatureFlags();
 
   const cookieStore = await cookies();
   const modelIdFromCookie = cookieStore.get('chat-model');
@@ -30,6 +32,7 @@ export default async function Page() {
           isReadonly={false}
           session={session}
           autoResume={false}
+          featureFlags={featureFlags}
         />
         <DataStreamHandler />
       </>
@@ -46,6 +49,7 @@ export default async function Page() {
         isReadonly={false}
         session={session}
         autoResume={false}
+        featureFlags={featureFlags}
       />
       <DataStreamHandler />
     </>

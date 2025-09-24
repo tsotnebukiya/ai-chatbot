@@ -12,6 +12,7 @@ import { Icons } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { authClient } from '@/lib/auth/auth-client';
+import type { FeatureFlags } from '@/lib/config/features';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -19,9 +20,14 @@ import { useState } from 'react';
 interface AuthFormProps {
   mode: 'login' | 'register';
   redirectTo?: string;
+  featureFlags?: FeatureFlags;
 }
 
-export function AuthBetter({ mode, redirectTo = '/' }: AuthFormProps) {
+export function AuthBetter({
+  mode,
+  redirectTo = '/',
+  featureFlags
+}: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -138,26 +144,30 @@ export function AuthBetter({ mode, redirectTo = '/' }: AuthFormProps) {
           </Button>
         </form>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          <Button
-            variant="outline"
-            onClick={() => handleSocialSignIn('google')}
-            disabled={isLoading}
-          >
-            <Icons.google className="h-4 w-4" />
-          </Button>
-        </div>
+        {featureFlags?.hasGoogleAuth && (
+          <>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+            <div className="w-full">
+              <Button
+                variant="outline"
+                onClick={() => handleSocialSignIn('google')}
+                disabled={isLoading}
+                className="w-full"
+              >
+                <Icons.google className="h-4 w-4" />
+              </Button>
+            </div>
+          </>
+        )}
 
         <div className="text-center text-sm">
           {mode === 'login' ? (

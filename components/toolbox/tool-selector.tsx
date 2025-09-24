@@ -12,15 +12,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
 import { PlusIcon } from '../icons';
+import type { FeatureFlags } from '@/lib/config/features';
 
 interface ToolSelectorProps {
   enabledTools: string[];
   onEnabledToolsChange: (tools: string[]) => void;
+  featureFlags: FeatureFlags;
 }
 
 export function ToolSelector({
   enabledTools,
-  onEnabledToolsChange
+  onEnabledToolsChange,
+  featureFlags
 }: ToolSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -61,24 +64,28 @@ export function ToolSelector({
         <DropdownMenuSeparator />
 
         <div className="max-h-64 overflow-y-auto">
-          <SearchToolDropdownItem
-            isEnabled={enabledTools.includes('search')}
-            onToggle={(enabled) => {
-              const newTools = enabled
-                ? [...enabledTools, 'search']
-                : enabledTools.filter((id) => id !== 'search');
-              onEnabledToolsChange(newTools);
-            }}
-          />
-          <GoogleToolDropdownItem
-            isEnabled={enabledTools.includes('gmail')}
-            onToggle={(enabled) => {
-              const newTools = enabled
-                ? [...enabledTools, 'gmail']
-                : enabledTools.filter((id) => id !== 'gmail');
-              onEnabledToolsChange(newTools);
-            }}
-          />
+          {featureFlags.hasWebSearch && (
+            <SearchToolDropdownItem
+              isEnabled={enabledTools.includes('search')}
+              onToggle={(enabled) => {
+                const newTools = enabled
+                  ? [...enabledTools, 'search']
+                  : enabledTools.filter((id) => id !== 'search');
+                onEnabledToolsChange(newTools);
+              }}
+            />
+          )}
+          {featureFlags.hasGoogleAuth && (
+            <GoogleToolDropdownItem
+              isEnabled={enabledTools.includes('gmail')}
+              onToggle={(enabled) => {
+                const newTools = enabled
+                  ? [...enabledTools, 'gmail']
+                  : enabledTools.filter((id) => id !== 'gmail');
+                onEnabledToolsChange(newTools);
+              }}
+            />
+          )}
         </div>
 
         {enabledCount > 0 && (

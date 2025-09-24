@@ -8,6 +8,7 @@ import { DataStreamHandler } from '@/components/data-stream-handler';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { convertToUIMessages } from '@/lib/utils';
 import { getChatToolsFromCookie } from '@/app/(chat)/actions';
+import { getFeatureFlags } from '@/lib/config/features';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -33,6 +34,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   });
 
   const uiMessages = convertToUIMessages(messagesFromDb);
+  const featureFlags = getFeatureFlags();
 
   const cookieStore = await cookies();
   const chatModelFromCookie = cookieStore.get('chat-model');
@@ -50,6 +52,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           session={session}
           autoResume={true}
           initialLastContext={chat.lastContext ?? undefined}
+          featureFlags={featureFlags}
         />
         <DataStreamHandler />
       </>
@@ -67,6 +70,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         session={session}
         autoResume={true}
         initialLastContext={chat.lastContext ?? undefined}
+        featureFlags={featureFlags}
       />
       <DataStreamHandler />
     </>

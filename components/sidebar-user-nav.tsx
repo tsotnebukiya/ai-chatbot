@@ -1,9 +1,9 @@
 'use client';
 
-import { ChevronUp } from 'lucide-react';
-import Image from 'next/image';
-import { useTheme } from 'next-themes';
 import { authClient } from '@/lib/auth/auth-client';
+import { ChevronUp } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import Image from 'next/image';
 
 import {
   DropdownMenu,
@@ -18,7 +18,6 @@ import {
   SidebarMenuItem
 } from '@/components/ui/sidebar';
 import { useRouter } from 'next/navigation';
-import { toast } from './toast';
 import { LoaderIcon } from './icons';
 
 export function SidebarUserNav({
@@ -86,25 +85,11 @@ export function SidebarUserNav({
                 type="button"
                 className="w-full cursor-pointer"
                 onClick={() => {
-                  if (session.isPending) {
-                    toast({
-                      type: 'error',
-                      description:
-                        'Checking authentication status, please try again!'
-                    });
-
-                    return;
-                  }
-
-                  if (session.data) {
-                    authClient.signOut();
-                    router.push('/');
-                  } else {
-                    router.push('/login');
-                  }
+                  authClient.signOut();
+                  router.push('/login');
                 }}
               >
-                {session.data ? 'Sign out' : 'Sign in'}
+                Sign out
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
