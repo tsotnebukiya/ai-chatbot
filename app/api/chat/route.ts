@@ -129,9 +129,9 @@ export async function POST(request: Request) {
       return error.toResponse();
     }
 
-    // Check for OpenAI API key error
+    // Check for AI API key error
     if (error instanceof Error && error.message?.includes('API key')) {
-      console.log('❌ OpenAI API key error');
+      console.log('❌ AI API key error');
       return new ChatSDKError('bad_request:api').toResponse();
     }
 

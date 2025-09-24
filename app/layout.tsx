@@ -1,14 +1,13 @@
-import { Toaster } from 'sonner';
+import { ThemeProvider } from '@/components/theme-provider';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from 'sonner';
 
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://chat.vercel.ai'),
-  title: 'Next.js Chatbot Template',
-  description: 'Next.js chatbot template using the AI SDK.'
+  title: 'Mistral AI Chatbot',
+  description: 'Mistral AI Chatbot using the AI SDK.'
 };
 
 export const viewport = {

@@ -5,7 +5,6 @@ Next.js AI chatbot application with Mistral AI integration, featuring real-time 
 ## Features
 
 - Real-time chat with streaming responses
-- Multiple AI providers (Mistral, OpenAI, XAI)
 - User authentication with BetterAuth
 - PostgreSQL database with Drizzle ORM
 - File upload support with Vercel Blob
