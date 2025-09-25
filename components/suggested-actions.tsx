@@ -1,9 +1,9 @@
 'use client';
 
+import type { ChatMessage } from '@/lib/types';
+import type { UseChatHelpers } from '@ai-sdk/react';
 import { motion } from 'framer-motion';
 import { memo } from 'react';
-import type { UseChatHelpers } from '@ai-sdk/react';
-import type { ChatMessage } from '@/lib/types';
 import { Suggestion } from './elements/suggestion';
 
 interface SuggestedActionsProps {
@@ -13,10 +13,10 @@ interface SuggestedActionsProps {
 
 function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
   const suggestedActions = [
-    'What are the advantages of using Next.js?',
+    'Help me plan a productive day with a schedule and priorities',
     "Write code to demonstrate Dijkstra's algorithm",
-    'Help me write an essay about Silicon Valley',
-    'What is the weather in San Francisco?'
+    "Explain quantum computing like I'm 10 years old",
+    'What is the weather in Paris?'
   ];
 
   return (
