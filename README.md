@@ -1,50 +1,78 @@
 # AI Chatbot
 
-Next.js AI chatbot application with Mistral AI integration, featuring real-time chat streaming, authentication, and database persistence.
+A production‑ready AI chatbot built with **Next.js 15**, **Vercel AI SDK**, and **Mistral**—with optional tools, auth, and one‑command self‑hosting.
 
-## Features
+## Project Overview
 
-- Real-time chat with streaming responses
-- User authentication with BetterAuth
-- PostgreSQL database with Drizzle ORM
-- File upload support with Vercel Blob
-- Gmail integration and productivity tools
-- Responsive UI with shadcn/ui components
+Enhanced Vercel AI SDK chatbot with Mistral integration, tool augmentation, and automated self‑hosting.
 
-## Self Host
+## Key Features
+
+- **🤖 Mistral**: `mistral-large-latest` (conversations), `magistral-medium-2506` (complex reasoning), `mistral-small-latest` (title generation)
+- **🔧 Tools**: Gmail (read/send/list), Web Search (Tavily), Weather (current conditions)
+- **🔐 Auth**: BetterAuth (email/password, Google OAuth w/ refresh), secure sessions in PostgreSQL
+- **🚀 Runtime**: streaming responses, resumable SSR streams, file uploads (Vercel Blob), message persistence (PostgreSQL)
+- **🏠 Ops**: Dockerized, Nginx reverse proxy, Let’s Encrypt TLS, health checks & monitoring
+
+## Technology Stack
+
+Next.js 15 (App Router, RSC) • TypeScript (strict) • Vercel AI SDK • Mistral API • Drizzle ORM + PostgreSQL • BetterAuth • Radix UI + shadcn/ui + Tailwind • Bun • Docker/Compose • Nginx (SSL/TLS)
+
+## Vercel Deployment
+
+1. **Import** the repo into Vercel (Framework: Next.js).
+2. **Set env vars** (table below). Use your Vercel URL for `BETTER_AUTH_URL` (e.g., `https://your-app.vercel.app`).
+3. **Provision** PostgreSQL; optionally Redis for resumable streams. Deploy.
+
+### Environment Variables
+
+| Variable                                    | Required | Purpose                                                |
+| ------------------------------------------- | -------- | ------------------------------------------------------ |
+| `POSTGRES_URL`                              | Yes      | PostgreSQL connection (chat history, user data)        |
+| `BETTER_AUTH_URL`                           | Yes      | App URL for BetterAuth callbacks (e.g., Vercel URL)    |
+| `BETTER_AUTH_SECRET`                        | Yes      | Token signing secret (e.g., `openssl rand -base64 32`) |
+| `MISTRAL_API_KEY`                           | Yes      | Mistral API access for chat                            |
+| `REDIS_URL`                                 | Optional | Enables **resumable streaming context**                |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional | **Google OAuth (BetterAuth)** and **Gmail tool**       |
+| `TAVILY_API_KEY`                            | Optional | **Web Search** tool                                    |
+| `BLOB_READ_WRITE_TOKEN`                     | Optional | **File attachments** in AI chat (Vercel Blob)          |
+
+## Self‑Hosting Deployment
 
 ### Prerequisites
 
-- Linux Ubuntu server (tested on Ubuntu 22.04+)
+- Ubuntu 22.04+ server
+- Domain name pointing to the server
 
-### Quickstart
+### Quick Start
 
-1. SSH into your server:
+```bash
+ssh root@your_server_ip
+curl -o ~/deploy.sh https://raw.githubusercontent.com/tsotnebukiya/ai-chatbot/main/scripts/deploy.sh
+chmod +x ~/deploy.sh
+./deploy.sh
+```
 
-   ```bash
-   ssh root@your_server_ip
-   ```
+When prompted, provide: domain, Let’s Encrypt email, **Mistral API key**, and optionally Google OAuth keys, Tavily API key, Vercel Blob token.
 
-2. Download and run the deployment script:
+> **Important**: In `next.config.ts`, ensure `output: 'standalone'` is enabled for self‑hosting.
 
-   ```bash
-   curl -o ~/deploy.sh https://raw.githubusercontent.com/tsotnebukiya/ai-chatbot/main/scripts/deploy.sh
-   chmod +x ~/deploy.sh
-   ./deploy.sh
-   ```
+### What the Deployment Script Does
 
-3. The script will:
-   - Install Docker and Docker Compose
-   - Set up swap space for memory management
-   - Clone the repository
-   - Prompt for API keys (Vercel Blob, Mistral)
-   - Generate secure passwords and secrets
-   - Build and start all services
-   - Configure database migrations
+- **System**: installs Docker/Compose, configures 1GB swap, opens HTTP/HTTPS firewall rules
+- **TLS**: obtains Let’s Encrypt certs, sets HTTPS redirect, auto‑renewal
+- **App**: clones repo, generates envs, builds & starts containers, runs migrations, configures health checks
 
-### Updating
+### Architecture (Self‑hosted)
 
-To update your deployment with the latest changes:
+- **Next.js app**: multi‑stage Docker build with standalone output
+- **PostgreSQL**: persistent storage + health checks
+- **Redis** (optional): caching/enhanced streaming
+- **Migration service**: separate container for schema updates
+- **Nginx**: SSL termination, rate limiting
+- **Network isolation**: custom Docker network
+
+### Update
 
 ```bash
 curl -o ~/update.sh https://raw.githubusercontent.com/tsotnebukiya/ai-chatbot/main/scripts/update.sh
@@ -52,36 +80,10 @@ chmod +x ~/update.sh
 ./update.sh
 ```
 
-### Architecture
+## Important Configuration Notes
 
-The deployment includes:
-
-- **Next.js Application**: Multi-stage Docker build with standalone output
-- **PostgreSQL Database**: Persistent storage with health checks
-- **Redis Cache**: In-memory caching with persistence
-- **Migration Service**: Separate container for database migrations
-- **Network Isolation**: Custom Docker network for service communication
-
-### Environment Variables
-
-The deployment script automatically generates:
-
-- Database credentials (random password)
-- BetterAuth secret (32-byte base64)
-- BetterAuth URL (auto-detected public IP)
-- Prompts for external API keys securely
-
-## Tech Stack
-
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: BetterAuth
-- **UI**: shadcn/ui + Tailwind CSS
-- **AI**: Vercel AI SDK
-- **Package Manager**: Bun
-- **Containerization**: Docker + Docker Compose
+- **Database**: Drizzle ORM (type‑safe), automatic migrations on deployment; schemas in `lib/db/schema.ts`
 
 ## License
 
-MIT
+MIT.

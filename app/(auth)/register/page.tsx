@@ -1,34 +1,13 @@
-'use client';
-
-import { useSearchParams } from 'next/navigation';
+import { getFeatureFlags } from '@/lib/config/features';
 import { Suspense } from 'react';
-import { AuthBetter } from '@/components/auth-better';
+import { AuthPageFallback, RegisterContent } from './register-component';
 
 export default function Page() {
+  const featureFlags = getFeatureFlags();
+
   return (
     <Suspense fallback={<AuthPageFallback />}>
-      <RegisterContent />
+      <RegisterContent featureFlags={featureFlags} />
     </Suspense>
-  );
-}
-
-function RegisterContent() {
-  const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get('redirectUrl') ?? '/';
-
-  return (
-    <div className="flex h-dvh w-screen items-start justify-center bg-background pt-12 md:items-center md:pt-0">
-      <div className="flex w-full max-w-md">
-        <AuthBetter mode="register" redirectTo={redirectUrl} />
-      </div>
-    </div>
-  );
-}
-
-function AuthPageFallback() {
-  return (
-    <div className="flex h-dvh w-screen items-center justify-center bg-background">
-      <span className="text-muted-foreground text-sm">Loading…</span>
-    </div>
   );
 }

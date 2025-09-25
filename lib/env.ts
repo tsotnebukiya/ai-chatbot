@@ -8,7 +8,7 @@ export const env = createEnv({
     BETTER_AUTH_URL: z.string().min(1, 'Auth URL must be a valid URL'),
     BETTER_AUTH_SECRET: z.string().min(1, 'Auth secret is required'),
     MISTRAL_API_KEY: z.string().min(1, 'Mistral API key is required'),
-    REDIS_URL: z.string().min(1, 'Redis URL is required'),
+    REDIS_URL: z.string().optional(),
 
     // Optional - Feature Integrations
     TAVILY_API_KEY: z.string().optional(),
