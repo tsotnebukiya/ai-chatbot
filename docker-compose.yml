@@ -19,7 +19,7 @@ services:
         - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
         - BETTER_AUTH_URL=${BETTER_AUTH_URL}
     ports:
-      - '3000:3000'
+      - '127.0.0.1:3000:3000'
     environment:
       - NODE_ENV=production
       - POSTGRES_URL=${POSTGRES_URL}
@@ -28,6 +28,10 @@ services:
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
       - BETTER_AUTH_URL=${BETTER_AUTH_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - PORT=3000
     depends_on:
       db:
         condition: service_healthy
@@ -46,8 +50,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     networks:
       - my_network
     healthcheck:
@@ -61,8 +63,6 @@ services:
     command: ['redis-server', '--appendonly', 'yes']
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
     networks:
       - my_network
 
